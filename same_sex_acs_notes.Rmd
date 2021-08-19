@@ -1,0 +1,104 @@
+---
+title: "Same Sex Households"
+author: "Data Science"
+date: "6/4/2021"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Same Sex households in the Census
+
+To celebrate Pride month, I was interested in looking into the Census
+data for our region about the LGBTQ community.
+
+> From
+> <https://www.census.gov/content/dam/Census/library/publications/2021/acs/acsbr-005.pdf>:
+> "As the largest available nationally representative household survey,
+> the American Community Survey (ACS) is useful for examining the
+> characteristics of households and families. Near the beginning of the
+> survey questionnaire, there is a question asking how each household
+> member is related to the householder. The householder is typically
+> someone who owns the home or whose name is on the lease. Understanding
+> each member's relationship to the householder allows us to distinguish
+> various types of household composition and family structure.
+>
+> Definitions: Same-sex couple households: These households are
+> identified using the "same-sex spouse" or "same-sex unmarried partner"
+> selections to the relationship to householder question. Total coupled
+> households: The total of those households in which the householder
+> reports having a spouse or unmarried partner in the household.
+> Includes opposite-sex and samesex married and unmarried couples.
+> Unmarried partner: A person in an intimate relationship with the
+> householder, such as a boyfriend or a girlfriend."
+
+## Regional and County Totals
+
+I wanted to look into the ACS 5-year (for good sample size) estimates
+for same-sex married and unmarried couples in the region and by county.
+
+```{r libraries, results='hide', warning=FALSE, message=FALSE}
+library(tidyverse)
+library(sf)
+library(leaflet)
+library(tidycensus)
+library(writexl)
+library(htmlwidgets)
+source('C:/Users/SChildress/Documents/GitHub/psrc-census-tools/library/psrc_census_config.R')
+source('C:/Users/SChildress/Documents/GitHub/psrc-census-tools/library/psrc_census.R')
+
+# See: https://www.census.gov/content/dam/Census/library/publications/2021/acs/acsbr-005.pdf
+
+
+
+Sys.getenv("CENSUS_API_KEY")
+
+```
+
+```{r totals}
+region_same_sex_married<-psrc_acs_table("B09019_011", "region", 2019,'acs5')
+
+region_same_sex_cohabit<-psrc_acs_table("B09019_013", "region", 2019,'acs5')
+
+# Regional Households
+
+region_hhs<- psrc_acs_table("B08201_001", "region", 2019,'acs5')
+
+# I should actually retrieve these values from the table above (lazy)
+
+same_sex_share <-(12259+7311)/1603060
+
+same_sex_share
+
+county_same_sex_married<-psrc_acs_table("B09019_011", "county", 2019,'acs5')
+county_same_sex_cohabit<-psrc_acs_table("B09019_013", "county", 2019,'acs5')
+```
+
+The data says that there are 12,300 same-sex married couples and 7,300
+same-sex unmarried couples. This just seems way too low at around 1.2%
+of households. There are obviously many same-sex people who are living
+without partners, but regardless, it makes me question the data.
+
+I retrieved the same sex households by Census Tract to see what the
+geographic results look like. Many tracts are within the MOE.
+
+## Same Sex Couples by Census Tract
+
+```{r maps}
+tract_same_sex_married<-psrc_acs_table("B09019_011", "tract", 2019,'acs5')
+tract_same_sex_cohabit<-psrc_acs_table("B09019_013", "tract", 2019,'acs5')
+
+
+ss_married_map<-create_tract_map(tract_same_sex_married)
+ss_cohabit_map<-create_tract_map(tract_same_sex_cohabit)
+
+ss_married_map
+ss_cohabit_map
+```
+
+I guess the maps look reasonable?
