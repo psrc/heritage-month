@@ -488,7 +488,7 @@ rownames(combine) <- 1:nrow(combine)
 ## my code
 library(dplyr)
 library(tidyverse)
-hispanic_tract<- combine %>% select(c('TRACT','COUNTY','GEOID','P0020002','P0020003'))%>%
-  filter(TRACT>0)
+hispanic_tract<- combine %>% select(c('TRACT','COUNTY','GEOID','P0020002','P0020003'))
+
 
 write.csv(hispanic_tract,'C:\\Users\\SChildress\\Documents\\GitHub\\heritage-month\\data\\hispanic_2020_tract.csv')
