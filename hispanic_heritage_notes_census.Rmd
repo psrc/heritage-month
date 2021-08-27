@@ -1,0 +1,129 @@
+---
+title: "Hispanic Heritage 2010-2020 Census"
+author: "suzanne"
+date: "8/26/2021"
+output: html_document
+---
+
+```{r load_libraries, echo=FALSE,include=FALSE}
+library(scales)
+library(sf)
+library(dplyr)
+library(psrccensus)
+library(ggplot2)
+library(tidyr)
+library(stringr)
+library(janitor)
+library(scales)
+Sys.getenv("CENSUS_API_KEY")
+```
+
+## Hispanic Heritage Month Analysis
+
+This analysis looks into 2010 and 2020 Census Data in the PSRC region for [Hispanic Heritage Month](https://www.hispanicheritagemonth.gov/).
+
+People's racial and ethnicity identities are complex and shifting. Census has also changed how it has asked race and ethnicity questions over the years, leading to an unclear picture of the source of changes in numbers of people by race and ethnicity. We cannot easily identify how much racial and ethnic change comes from regular demographic shifts, how much comes from Census question wording, and how much comes from change in how people see themselves. [A recent NPR story](https://www.npr.org/2021/08/22/1029609786/2020-census-data-results-white-population-shrinking-decline-non-hispanic-race) dove into the complexities of understanding shifts in race from the 2010 to 2020 Census. The story explained that "comparing race data over time can be like comparing apples and oranges". T
+
+With all these caveats in mind, **what do the 2010 and 2020 Censuses tell us about people's categorization of their Hispanic or Latino ethnicity?**
+
+```{r county_results, include=FALSE}
+#Load 2010 data using psrccensus package
+#P004003- Hispanic or Latino
+#P004002 - Not Hispanic or Latino
+tbl_names <- paste0('P004')
+hisp_2010_county<-get_decennial_recs(geography = 'county', table_codes = 'P004', year = 2010)
+
+hisp_2020<-read.csv('C:\\Users\\SChildress\\Documents\\GitHub\\heritage-month\\data\\hispanic_2020.csv')
+
+# 33 King, 35 Kitsap, 53 Pierce, 61 snohomish
+# get county results:
+
+hisp_2020_county<-hisp_2020 %>% filter(GEOID %in% c('0500000US53033', '0500000US53035','0500000US53053', '0500000US53061'))
+write.table(hisp_2010_county,"clipboard", sep='\t', row.names=FALSE )
+```
+
+```{r data_reshape_county, echo=FALSE,warning=FALSE, results='hide'}
+hisp_2010_county_new <- hisp_2010_county%>%
+                  select(c(GEOID,value, label)) %>%
+                  pivot_wider(names_from='label',values_from='value')%>%
+                  rename(Hispanic_2010="Total!!Hispanic or Latino", 
+                        Non_Hispanic_2010="Total!!Not Hispanic or Latino")%>%
+                  mutate(GEOID = as.character(GEOID))%>%
+                 mutate(GEOID=str_sub(GEOID, start=1, end=5 ))
+write.table(hisp_2010_county_new,"clipboard", sep='\t', row.names=FALSE )
+hisp_2020_county_new<- tibble(hisp_2020_county %>% select(c(GEOID,P0020002,P0020003)) %>%
+                       rename(Hispanic_2020=P0020002, Non_Hispanic_2020=P0020003) %>%
+                       mutate(Total=Hispanic_2020+Non_Hispanic_2020) %>%
+                       mutate(GEOID=str_sub(GEOID, start=-5 ))%>%
+                  mutate(GEOID = as.character(GEOID)))
+write.table(hisp_2020_county_new,"clipboard", sep='\t', row.names=FALSE )
+                       
+hisp_2010_2020_county<- inner_join(hisp_2010_county_new, hisp_2020_county_new, by ='GEOID', suffix=c("_2010", "_2020"))%>% 
+mutate(County= recode(GEOID,'53033'="King", "53035"= "Kitsap", "53053"= "Pierce", "53061"="Snohomish"))%>% 
+  adorn_totals("row")
+
+
+
+```
+
+```{r more_reshaping, echo=FALSE,warning=FALSE, results='hide'}
+hisp_2010_2020_county_final<-hisp_2010_2020_county%>%
+  mutate('Percent Hispanic 2010'=Hispanic_2010/Total_2010)%>%
+  mutate('Percent Hispanic 2020'=Hispanic_2020/Total_2020)%>%
+  mutate("Hispanic Change 2010 to 2020"=Hispanic_2020-Hispanic_2010)%>%
+  mutate("Non-Hispanic Change 2010 to 2020"=Non_Hispanic_2020-Non_Hispanic_2010)%>%
+  mutate("Hispanic Percent Change 2010 to 2020"=`Hispanic Change 2010 to 2020`/Hispanic_2010)%>%
+  mutate("Non-Hispanic Percent Change 2010 to 2020"=`Non-Hispanic Change 2010 to 2020`/Non_Hispanic_2010)%>%mutate(County=recode(County, "-"='Region'))
+
+write.table(hisp_2010_2020_county_final,"clipboard", sep='\t', row.names=FALSE )
+
+totals_table<- hisp_2010_2020_county_final %>% select(c('County','Hispanic_2010', 'Non_Hispanic_2010','Hispanic_2020', 'Non_Hispanic_2020', 'Hispanic Change 2010 to 2020', 'Non-Hispanic Change 2010 to 2020') )
+
+totals_table
+percent_table<- hisp_2010_2020_county_final %>%select('County', 'Percent Hispanic 2010', 'Percent Hispanic 2020','Hispanic Percent Change 2010 to 2020', 'Non-Hispanic Percent Change 2010 to 2020' ) 
+percent_table
+long_percent_table<-percent_table%>%select(c('County', 'Percent Hispanic 2010', 'Percent Hispanic 2020'))%>% pivot_longer(cols=!County, names_to='Year', values_to='Percent Hispanic', names_prefix=' Percent Hispanic')
+                                           
+percent_hispanic<-ggplot(data=long_percent_table, aes(x=County, y=`Percent Hispanic`, fill=Year))+
+  geom_bar(stat="identity", position=position_dodge())+
+  scale_fill_brewer(palette="Paired")+
+  theme_minimal()+ scale_y_continuous(labels = scales::percent)
+percent_hispanic
+```
+
+The regional Hispanic population increased 46% from 2010 to 2020, but the regional non-Hispanic population increased only 13% in that time. The region gained nearly 150,000 residents who identify as Hispanic.
+
+The greatest percentage increase in the Hispanic population was in Kitsap, where the population went up from 6% to 9%. The greatest overall increase was in King County which added 70,600 Hispanic residents.
+
+```{r where, include=FALSE}
+tract.big.tbl <- psrccensus::get_decennial_recs(geography='tract',table_codes=c('P005'),year=c(2010))
+
+
+
+tract.tbl <- tract.big.tbl %>%
+filter(label=='Total!!Hispanic or Latino')
+
+gdb.nm <- paste0("MSSQL:server=",
+"AWS-PROD-SQL\\Sockeye",
+";database=",
+"ElmerGeo",
+";trusted_connection=yes")
+
+spn <-  2285
+
+tract_layer_name <- "dbo.tract2010_nowater"
+
+tract.lyr <- st_read(gdb.nm, tract_layer_name, crs = spn)
+m<-create_tract_map(tract.tbl=tract.tbl, tract.lyr=tract.lyr,  
+                 legend.title='Hispanic Population', legend.subtitle='by Census Tract')
+
+```
+
+The plot below shows Census tracts that have high numbers of people identifying as Hispanic.
+
+Tracts near Lynnwood, Burien, Renton, Kent, and Tacoma stand out as having high numbers of people who identify as Hispanic.
+
+```{r map, echo=FALSE}
+m
+
+```

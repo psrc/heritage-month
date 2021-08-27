@@ -1,0 +1,121 @@
+---
+title: "hispanic_heritage"
+author: "suzanne"
+date: "8/19/2021"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Notes
+
+These are notes for Hispanic heritage month.
+<https://www.hispanicheritagemonth.gov/> September 15 to October 15
+
+```{r load_libraries}
+library(devtools)
+library(sf)
+library(dplyr)
+library(psrccensus)
+library(ggplot2)
+Sys.getenv("CENSUS_API_KEY")
+```
+
+How does Hispanic age breakdown compare to non-Hispanic?
+
+age B1002I, B1002A what Races do Hispanic people identify as B3002; use
+Census what specific origins do people come from B3001 nativity B05003;
+B06004, B06007 means of transportation to work for workplace geo
+B08105H; I grandparents B10051I
+
+B11001I B13002 women who gave birth B15002 educational attainment B17001
+poverty B19001 B24010 occupation
+
+```{r}
+overall_age_df <- get_acs_recs(geography = 'county',
+             table.names = c('B01002'),
+             years=c(2019),
+             acs.type = 'acs1')
+
+hispanic_age_df<-get_acs_recs(geography = 'county',
+             table.names = c('B01002I'),
+             years=c(2019),
+             acs.type = 'acs1')
+
+overall_hispanic_df<-rbind(overall_age_df, hispanic_age_df)
+age_df<-overall_hispanic_df%>% filter(label=='Estimate!!Median age --!!Total:' & name !='Region') %>% mutate('Hispanic'=ifelse(variable=='B01002_001', 'All Population', 'Hispanic or Latino Population'))
+
+
+ggplot(data=age_df, aes(x=name, y=estimate, fill=Hispanic))+geom_bar(stat='identity', position=position_dodge())+
+  geom_text(aes(label=estimate), vjust=1.6, color="white",
+            position = position_dodge(0.9), size=3.5)
+```
+
+Map hispanic population by tract
+
+```{r}
+tract.big.tbl <- psrccensus::get_decennial_recs(geography='tract',table_codes=c('P005'),year=c(2010))
+
+
+
+tract.tbl <- tract.big.tbl %>%
+filter(label=='Total!!Hispanic or Latino')
+
+gdb.nm <- paste0("MSSQL:server=",
+"AWS-PROD-SQL\\Sockeye",
+";database=",
+"ElmerGeo",
+";trusted_connection=yes")
+
+spn <-  2285
+
+tract_layer_name <- "dbo.tract2010_nowater"
+
+tract.lyr <- st_read(gdb.nm, tract_layer_name, crs = spn)
+m<-create_tract_map(tract.tbl=tract.tbl, tract.lyr=tract.lyr,  
+                 legend.title='Hispanic Population', legend.subtitle='by Census Tract')
+
+```
+
+```{r}
+women_birth_df<-get_acs_recs(geography = 'county',
+             table.names = c('B13002'),
+             years=c(2019),
+             acs.type = 'acs1') 
+women_birth_df_hispanic<-get_acs_recs(geography = 'county',
+             table.names = c('B13002I'),
+             years=c(2019),
+             acs.type = 'acs1')
+```
+
+1049422 women age 15 to 50 in the region
+
+55604 gave birth (5.3%)
+
+118645 Hispanic women
+
+6694 (5.6%)
+
+```{r}
+country_df<-get_acs_recs(geography = 'county',
+             table.names = c('B03001'),
+             years=c(2019),
+             acs.type = 'acs1') 
+write.table(country_df, "clipboard", sep="\t", row.names=FALSE)
+
+#ggplot(data=country_df, aes(x=label, y=estimate))+geom_bar(stat#='identity', position=position_dodge())+
+#  geom_text(aes(label=estimate), vjust=1.6, color="white",
+#            position = position_dodge(0.9), size=3.5)
+
+```
+
+Comparing 2010 and 2020 Census
+
+Totals by County
+
+Tract Map; Tract Difference Map
