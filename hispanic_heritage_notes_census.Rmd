@@ -79,9 +79,12 @@ write.table(hisp_2010_2020_county_final,"clipboard", sep='\t', row.names=FALSE )
 
 totals_table<- hisp_2010_2020_county_final %>% select(c('County','Hispanic_2010', 'Non_Hispanic_2010','Hispanic_2020', 'Non_Hispanic_2020', 'Hispanic Change 2010 to 2020', 'Non-Hispanic Change 2010 to 2020') )
 
+
 totals_table
+write.table(totals_table,"clipboard", sep='\t', row.names=FALSE )
 percent_table<- hisp_2010_2020_county_final %>%select('County', 'Percent Hispanic 2010', 'Percent Hispanic 2020','Hispanic Percent Change 2010 to 2020', 'Non-Hispanic Percent Change 2010 to 2020' ) 
 percent_table
+write.table(percent_table,"clipboard", sep='\t', row.names=FALSE )
 long_percent_table<-percent_table%>%select(c('County', 'Percent Hispanic 2010', 'Percent Hispanic 2020'))%>% pivot_longer(cols=!County, names_to='Year', values_to='Percent Hispanic', names_prefix=' Percent Hispanic')
                                            
 percent_hispanic<-ggplot(data=long_percent_table, aes(x=County, y=`Percent Hispanic`, fill=Year))+
@@ -111,7 +114,7 @@ gdb.nm <- paste0("MSSQL:server=",
 
 spn <-  2285
 
-tract_layer_name <- "dbo.tract2010_nowater"
+tract_layer_name <- "dbo.tract2020_nowater"
 
 tract.lyr <- st_read(gdb.nm, tract_layer_name, crs = spn)
 m<-create_tract_map(tract.tbl=tract.tbl, tract.lyr=tract.lyr,  
