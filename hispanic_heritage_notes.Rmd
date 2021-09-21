@@ -149,28 +149,66 @@ Tract Map; Tract Difference Map
 
 ```{r}
 
-white_transport_df <- get_acs_recs(geography = 'county',
-             table.names = c('B08105A'),
-             years=c(2019),
-             acs.type = 'acs5')
-
-hispanic_transport_df <- get_acs_recs(geography = 'county',
-             table.names = c('B08105I'),
+income_df_white <- get_acs_recs(geography = 'county',
+             table.names = c('B19013H'),
              years=c(2019),
              acs.type = 'acs5')
 
 
+income_df_hispanic<- get_acs_recs(geography = 'county',
+             table.names = c('B19013I'),
+             years=c(2019),
+             acs.type = 'acs5')
 
-white_hispanic_df<-rbind(white_transport_df, hispanic_transport_df)%>%filter(name=='Region')
-
-
+white_hispanic_df<-merge(income_df_white, income_df_hispanic, by ='name')
 
 write.table(white_hispanic_df,"clipboard", sep='\t', row.names=FALSE )
+# 
+# white_transport_df <- get_acs_recs(geography = 'county',
+#              table.names = c('B08105A'),
+#              years=c(2019),
+#              acs.type = 'acs5')
+# 
+# 
+# 
+# hispanic_transport_df <- get_acs_recs(geography = 'county',
+#              table.names = c('B08105I'),
+#              years=c(2019),
+#              acs.type = 'acs5')
+# 
+# 
+# 
+# white_hispanic_df<-rbind(white_transport_df, hispanic_transport_df)%>%filter(name=='Region')
+# 
+# 
+# 
+# write.table(white_hispanic_df,"clipboard", sep='\t', row.names=FALSE )
+# 
 
+poverty_df_white_1 <- get_acs_recs(geography = 'county',
+             table.names = c('B17020H'),
+             years=c(2019),
+             acs.type = 'acs5')
 
+write.table(poverty_df_white_1 ,"clipboard", sep='\t', row.names=FALSE )
+
+poverty_df_hispanic_1 <- get_acs_recs(geography = 'county',
+             table.names = c('B17020I'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+write.table(poverty_df_hispanic_1 ,"clipboard", sep='\t', row.names=FALSE )
+
+# 
 ```
 
 B17020H_001
+
+```{r}
+
+
+
+```
 
 B17020H_002
 
@@ -202,6 +240,9 @@ income_df_hispanic<- get_acs_recs(geography = 'county',
 
 
 
-write.table(white_hispanic_df,"clipboard", sep='\t', row.names=FALSE )
 
+
+```
+
+```{}
 ```

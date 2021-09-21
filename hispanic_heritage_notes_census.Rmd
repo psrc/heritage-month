@@ -15,6 +15,7 @@ library(tidyr)
 library(stringr)
 library(janitor)
 library(scales)
+library(rgdal)
 Sys.getenv("CENSUS_API_KEY")
 ```
 
@@ -97,14 +98,105 @@ percent_hispanic
 The regional Hispanic population increased 46% from 2010 to 2020, but the regional non-Hispanic population increased only 13% in that time. The region gained nearly 150,000 residents who identify as Hispanic.
 
 The greatest percentage increase in the Hispanic population was in Kitsap, where the population went up from 6% to 9%. The greatest overall increase was in King County which added 70,600 Hispanic residents.
+```{r}
+create_tract_map_fixed_scale<- function(tract.tbl, tract.lyr,
+                             map.title = NULL, map.subtitle = NULL,
+                             map.title.position = NULL,
+                             legend.title = NULL, legend.subtitle = NULL,
+                             map.lat=47.615, map.lon=-122.257, map.zoom=8.5, wgs84=4326){
+
+
+  # Summarize and Aggregate Tract Data by Year and Attribute to Map and join to tract layer for mapping
+  # rename census value column to estimate to match ACS
+  tbl <- tract.tbl %>%
+    dplyr::rename_at(dplyr::vars(matches("value")),function(x) "estimate") %>%
+    dplyr::select(.data$GEOID,.data$estimate) %>%
+    dplyr::mutate(dplyr::across(c('GEOID'), as.character))%>%
+    dplyr::group_by(.data$GEOID) %>%
+    dplyr::summarise(Total=sum(.data$estimate))
+
+    tract.lyr<-tract.lyr%>%
+    # make geo names across 2010 and 2020
+    dplyr::rename_at(dplyr::vars(matches("geoid10")),function(x) "geoid") %>%
+    dplyr::rename_at(dplyr::vars(matches("geoid20")),function(x) "geoid")
+
+  c.layer <- dplyr::left_join(tract.lyr,tbl, by = c("geoid"="GEOID")) %>%
+    sf::st_transform(wgs84)
+  
+  color.bins<- c(0, 500, 1000, 4000)
+
+  pal <- leaflet::colorBin(palette="Purples", bins=color.bins, domain = c.layer$Total)
+
+
+  labels <- paste0("Census Tract: ", c.layer$geoid, '<p></p>',
+                   'Total: ', prettyNum(round(c.layer$Total, -1), big.mark = ",")) %>% lapply(htmltools::HTML)
+
+  m <- leaflet::leaflet() %>%
+    leaflet::addMapPane(name = "polygons", zIndex = 410) %>%
+    leaflet::addMapPane(name = "maplabels", zIndex = 500) %>% # higher zIndex rendered on top
+
+    leaflet::addProviderTiles("CartoDB.VoyagerNoLabels") %>%
+    leaflet::addProviderTiles("CartoDB.VoyagerOnlyLabels",
+                              options = leaflet::leafletOptions(pane = "maplabels"),
+                              group = "Labels") %>%
+
+    leaflet::addEasyButton(leaflet::easyButton(icon="fa-globe",
+                                               title="Region",
+                                               onClick=leaflet::JS("function(btn, map){map.setView([47.615,-122.257],8.5); }"))) %>%
+    leaflet::addPolygons(data=c.layer,
+                         fillOpacity = 0.7,
+                         fillColor = pal(c.layer$Total),
+                         weight = 0.7,
+                         color = "#BCBEC0",
+                         group="Population",
+                         opacity = 0,
+                         stroke=FALSE,
+                         options = leaflet::leafletOptions(pane = "polygons"),
+                         dashArray = "",
+                         highlight = leaflet::highlightOptions(
+                           weight =5,
+                           color = "76787A",
+                           dashArray ="",
+                           fillOpacity = 0.7,
+                           bringToFront = TRUE),
+                         label = labels,
+                         labelOptions = leaflet::labelOptions(
+                           style = list("font-weight" = "normal", padding = "3px 8px"),
+                           textsize = "15px",
+                           direction = "auto")) %>%
+
+    leaflet::addLegend(pal = pal,
+                       values = c.layer$Total,
+                       position = "bottomright",
+                       title = paste(legend.title, '<br>', legend.subtitle),
+                       ) %>%
+
+    leaflet::addControl(html = paste(map.title, '<br>', map.subtitle),
+                        position = map.title.position,
+                        layerId = 'mapTitle') %>%
+
+    leaflet::addLayersControl(baseGroups = "CartoDB.VoyagerNoLabels",
+                              overlayGroups = c("Labels", "Population")) %>%
+
+    leaflet::setView(lng=map.lon, lat=map.lat, zoom=map.zoom)
+
+  return(m)
+
+}
+
+```
 
 ```{r where, include=FALSE}
-tract.big.tbl <- psrccensus::get_decennial_recs(geography='tract',table_codes=c('P005'),year=c(2010))
+tract.tbl <- hisp_2020%>%filter(TRACT>0)%>%
+                 select('GEOID', 'P0020002')%>%
+                 rename('estimate'='P0020002')
+
+#make the geoid be matching with the tract layer
+tract.tbl<- tract.tbl%>% mutate(GEOID=str_sub(GEOID,-11,-1 ))
 
 
 
-tract.tbl <- tract.big.tbl %>%
-filter(label=='Total!!Hispanic or Latino')
+
 
 gdb.nm <- paste0("MSSQL:server=",
 "AWS-PROD-SQL\\Sockeye",
@@ -113,12 +205,31 @@ gdb.nm <- paste0("MSSQL:server=",
 ";trusted_connection=yes")
 
 spn <-  2285
+wgs84=4326
 
 tract_layer_name <- "dbo.tract2020_nowater"
 
 tract.lyr <- st_read(gdb.nm, tract_layer_name, crs = spn)
-m<-create_tract_map(tract.tbl=tract.tbl, tract.lyr=tract.lyr,  
-                 legend.title='Hispanic Population', legend.subtitle='by Census Tract')
+
+
+
+m<-create_tract_map_fixed_scale(tract.tbl=tract.tbl, tract.lyr=tract.lyr,  
+                 legend.title='Hispanic/Latinx Population', legend.subtitle='by Census Tract')
+```
+
+
+```{r where, include=FALSE}
+#tract.big.tbl <- psrccensus::get_decennial_recs(geography='tract',table_codes=c('P005'),year=c(2010))
+#tract.tbl_2010 <- tract.big.tbl %>%
+#filter(label=='Total!!Hispanic or Latino')
+
+#tract_layer_2010_name <- "dbo.tract2010_nowater"
+#tract.lyr_2010 <- st_read(gdb.nm, tract_layer_2010_name, crs = spn)
+
+#m_2010<-create_tract_map(tract.tbl=tract.tbl_2010 , tract.lyr=tract.lyr_2010,  
+                 #legend.title='Hispanic Population', legend.subtitle='by Census Tract')
+
+
 
 ```
 
