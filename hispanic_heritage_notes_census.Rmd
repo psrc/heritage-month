@@ -124,6 +124,7 @@ create_tract_map_fixed_scale<- function(tract.tbl, tract.lyr,
     sf::st_transform(wgs84)
   
   color.bins<- c(0, 500, 1000, 4000)
+  map.labels <- c("0-500", "501-1000", "1001-4000")
 
   pal <- leaflet::colorBin(palette="Purples", bins=color.bins, domain = c.layer$Total)
 
@@ -169,6 +170,9 @@ create_tract_map_fixed_scale<- function(tract.tbl, tract.lyr,
                        values = c.layer$Total,
                        position = "bottomright",
                        title = paste(legend.title, '<br>', legend.subtitle),
+                       labFormat = function(type, cuts, p) {  # Here's the trick
+                                                  paste0(map.labels)
+                             }
                        ) %>%
 
     leaflet::addControl(html = paste(map.title, '<br>', map.subtitle),
