@@ -36,9 +36,6 @@ B08105H; I grandparents B10051I
 B11001I B13002 women who gave birth B15002 educational attainment B17001
 poverty B19001 B24010 occupation
 
-```{}
-```
-
 ```{r}
 
 overall_age_df <- get_acs_recs(geography = 'county',
@@ -124,11 +121,6 @@ poverty_df_hispanic<- get_acs_recs(geography = 'county',
 
 
 
-white_hispanic_df<-merge(poverty_df_white, poverty_df_hispanic, by=name)
-
-
-
-write.table(white_hispanic_df,"clipboard", sep='\t', row.names=FALSE )
 
 # overall_hispanic_df<-rbind(overall_age_df, hispanic_age_df)
 # age_df<-overall_hispanic_df%>% filter(label=='Estimate!!Median age --!!Total:' & name !='Region') %>% mutate('Hispanic'=ifelse(variable=='B01002_001', 'All Population', 'Hispanic or Latino Population'))
@@ -152,13 +144,13 @@ Tract Map; Tract Difference Map
 income_df_white <- get_acs_recs(geography = 'county',
              table.names = c('B19013H'),
              years=c(2019),
-             acs.type = 'acs5')
+             acs.type = 'acs1')
 
 
 income_df_hispanic<- get_acs_recs(geography = 'county',
              table.names = c('B19013I'),
              years=c(2019),
-             acs.type = 'acs5')
+             acs.type = 'acs1')
 
 white_hispanic_df<-merge(income_df_white, income_df_hispanic, by ='name')
 
@@ -227,13 +219,20 @@ B19013I_001
 income_df_white <- get_acs_recs(geography = 'county',
              table.names = c('B19013H'),
              years=c(2019),
-             acs.type = 'acs5')
+             acs.type = 'acs1')
 
 
 income_df_hispanic<- get_acs_recs(geography = 'county',
              table.names = c('B19013I'),
              years=c(2019),
-             acs.type = 'acs5')
+             acs.type = 'acs1')
+
+
+
+country_df_hispanic<- get_acs_recs(geography = 'county',
+             table.names = c('B03001'),
+             years=c(2019),
+             acs.type = 'acs1')
 
 
 
@@ -242,7 +241,4 @@ income_df_hispanic<- get_acs_recs(geography = 'county',
 
 
 
-```
-
-```{}
 ```

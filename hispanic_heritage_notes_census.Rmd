@@ -98,6 +98,7 @@ percent_hispanic
 The regional Hispanic population increased 46% from 2010 to 2020, but the regional non-Hispanic population increased only 13% in that time. The region gained nearly 150,000 residents who identify as Hispanic.
 
 The greatest percentage increase in the Hispanic population was in Kitsap, where the population went up from 6% to 9%. The greatest overall increase was in King County which added 70,600 Hispanic residents.
+
 ```{r}
 create_tract_map_fixed_scale<- function(tract.tbl, tract.lyr,
                              map.title = NULL, map.subtitle = NULL,
@@ -220,7 +221,6 @@ tract.lyr <- st_read(gdb.nm, tract_layer_name, crs = spn)
 m<-create_tract_map_fixed_scale(tract.tbl=tract.tbl, tract.lyr=tract.lyr,  
                  legend.title='Hispanic/Latinx Population', legend.subtitle='by Census Tract')
 ```
-
 
 ```{r where, include=FALSE}
 #tract.big.tbl <- psrccensus::get_decennial_recs(geography='tract',table_codes=c('P005'),year=c(2010))
