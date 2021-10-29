@@ -1,0 +1,85 @@
+---
+title: "2010 and 2020 Census Tracts"
+output: html_notebook
+---
+
+
+
+
+```{r load_libraries, echo=FALSE,include=FALSE}
+library(scales)
+library(sf)
+library(dplyr)
+library(psrccensus)
+```
+
+```{r}
+
+create_tract_map <- function( tract.lyr10,tract.lyr20
+                             map.title = NULL, map.subtitle = NULL,
+                             map.title.position = NULL,
+                             legend.title = NULL, legend.subtitle = NULL,
+                             map.lat=47.615, map.lon=-122.257, map.zoom=8.5, wgs84=4326){
+
+
+  # Summarize and Aggregate Tract Data by Year and Attribute to Map and join to tract layer for mapping
+  # rename census value column to estimate to match ACS
+  
+
+  labels <- paste0("Census Tract: ", c.layer$geoid) %>% lapply(htmltools::HTML)
+
+  m <- leaflet::leaflet() %>%
+    leaflet::addMapPane(name = "polygons", zIndex = 410) %>%
+    leaflet::addMapPane(name = "maplabels", zIndex = 500) %>% # higher zIndex rendered on top
+
+    leaflet::addProviderTiles("CartoDB.VoyagerNoLabels") %>%
+    leaflet::addProviderTiles("CartoDB.VoyagerOnlyLabels",
+                              options = leaflet::leafletOptions(pane = "maplabels"),
+                              group = "Labels") %>%
+
+    leaflet::addEasyButton(leaflet::easyButton(icon="fa-globe",
+                                               title="Region",
+                                               onClick=leaflet::JS("function(btn, map){map.setView([47.615,-122.257],8.5); }"))) %>%
+    leaflet::addPolygons(data=tract.layer,
+                         fillOpacity = 0.7,
+                         fillColor = pal(c.layer$Total),
+                         weight = 0.7,
+                         color = "#BCBEC0",
+                         group="Population",
+                         opacity = 0,
+                         stroke=FALSE,
+                         options = leaflet::leafletOptions(pane = "polygons"),
+                         dashArray = "",
+                         highlight = leaflet::highlightOptions(
+                           weight =5,
+                           color = "76787A",
+                           dashArray ="",
+                           fillOpacity = 0.7,
+                           bringToFront = TRUE),
+                         label = labels,
+                         labelOptions = leaflet::labelOptions(
+                           style = list("font-weight" = "normal", padding = "3px 8px"),
+                           textsize = "15px",
+                           direction = "auto")) %>%
+
+    leaflet::addLegend(pal = pal,
+                       values = c.layer$Total,
+                       position = "bottomright",
+                       title = paste(legend.title, '<br>', legend.subtitle)) %>%
+
+    leaflet::addControl(html = paste(map.title, '<br>', map.subtitle),
+                        position = map.title.position,
+                        layerId = 'mapTitle') %>%
+
+    leaflet::addLayersControl(baseGroups = "CartoDB.VoyagerNoLabels",
+                              overlayGroups = c("Labels", "Population")) %>%
+
+    leaflet::setView(lng=map.lon, lat=map.lat, zoom=map.zoom)
+
+  return(m)
+
+}
+
+
+```
+

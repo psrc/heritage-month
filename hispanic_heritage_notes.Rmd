@@ -1,5 +1,5 @@
 ---
-title: "hispanic_heritage"
+title: "Hispanic-Latinx Heritage Month ACS Data"
 author: "suzanne"
 date: "8/19/2021"
 output: html_document
@@ -12,7 +12,7 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Notes
+## Notes for Hispanic-Latinx heritage month
 
 These are notes for Hispanic heritage month.
 <https://www.hispanicheritagemonth.gov/> September 15 to October 15
@@ -26,15 +26,31 @@ library(ggplot2)
 Sys.getenv("CENSUS_API_KEY")
 ```
 
-How does Hispanic age breakdown compare to non-Hispanic?
+I searched the api table list for Hispanic to see what data is
+available. <https://api.census.gov/data/2019/acs/acs5/variables.html>
 
-age B1002I, B1002A what Races do Hispanic people identify as B3002; use
-Census what specific origins do people come from B3001 nativity B05003;
-B06004, B06007 means of transportation to work for workplace geo
-B08105H; I grandparents B10051I
+How does Hispanic age breakdown compare to non-Hispanic? \* Age is found
+in B1002I, B1002A
 
-B11001I B13002 women who gave birth B15002 educational attainment B17001
-poverty B19001 B24010 occupation
+What Races do Hispanic people identify with? \* B3002
+
+What specific origins do people come from? \* B300, B05003
+
+What means of transportation do people use to get to work? \* B06004,
+B06007 means of transportation to work for workplace geo
+
+Information about grandparents living with grandchildren \* B08105H; I
+grandparents B10051I
+
+Are more Hispanic women giving birth than all women? \* B13002 women who
+gave birth
+
+What are the educational attainment levels for Hispanic people? \*
+B15002 educational attainment
+
+What are the poverty rates for Hispanic people? \* B17001 B19001
+
+### Median Age by Hispanic and All
 
 ```{r}
 
@@ -52,7 +68,7 @@ overall_hispanic_df<-rbind(overall_age_df, hispanic_age_df)
 age_df<-overall_hispanic_df%>% filter(label=='Estimate!!Median age --!!Total:' & name !='Region') %>% mutate('Hispanic'=ifelse(variable=='B01002_001', 'All Population', 'Hispanic or Latino Population'))
 write.table(age_df,"clipboard", sep='\t', row.names=FALSE )
 
-
+age_df
 
 ggplot(data=age_df, aes(x=name, y=estimate, fill=Hispanic))+geom_bar(stat='identity', position=position_dodge())+
   geom_text(aes(label=estimate), vjust=1.6, color="white",
@@ -60,7 +76,7 @@ ggplot(data=age_df, aes(x=name, y=estimate, fill=Hispanic))+geom_bar(stat='ident
 
 ```
 
-Map hispanic population by tract
+### Hispanic Population by Tract
 
 ```{r}
 tract.big.tbl <- psrccensus::get_decennial_recs(geography='tract',table_codes=c('P005'),year=c(2010))
@@ -84,7 +100,10 @@ tract.lyr <- st_read(gdb.nm, tract_layer_name, crs = spn)
 m<-create_tract_map(tract.tbl=tract.tbl, tract.lyr=tract.lyr,  
                  legend.title='Hispanic Population', legend.subtitle='by Census Tract')
 
+m
 ```
+
+### Women who gave birth
 
 ```{r}
 women_birth_df<-get_acs_recs(geography = 'county',
@@ -95,6 +114,8 @@ women_birth_df_hispanic<-get_acs_recs(geography = 'county',
              table.names = c('B13002I'),
              years=c(2019),
              acs.type = 'acs1')
+women_birth_df
+women_birth_df_hispanic
 ```
 
 1049422 women age 15 to 50 in the region
@@ -105,7 +126,7 @@ women_birth_df_hispanic<-get_acs_recs(geography = 'county',
 
 6694 (5.6%)
 
-B06004, B06007
+### Poverty Rates
 
 ```{r}
 poverty_df_white <- get_acs_recs(geography = 'county',
@@ -120,24 +141,11 @@ poverty_df_hispanic<- get_acs_recs(geography = 'county',
              acs.type = 'acs5')
 
 
-
-
-# overall_hispanic_df<-rbind(overall_age_df, hispanic_age_df)
-# age_df<-overall_hispanic_df%>% filter(label=='Estimate!!Median age --!!Total:' & name !='Region') %>% mutate('Hispanic'=ifelse(variable=='B01002_001', 'All Population', 'Hispanic or Latino Population'))
-# write.table(age_df,"clipboard", sep='\t', row.names=FALSE )
-# 
-# 
-# 
-# ggplot(data=age_df, aes(x=name, y=estimate, fill=Hispanic))+geom_bar(stat='identity', position=position_dodge())+
-#   geom_text(aes(label=estimate), vjust=1.6, color="white",
-#             position = position_dodge(0.9), size=3.5)
+poverty_df_white
+poverty_df_hispanic
 ```
 
-Comparing 2010 and 2020 Census
-
-Totals by County
-
-Tract Map; Tract Difference Map
+### Median Income
 
 ```{r}
 
@@ -154,80 +162,45 @@ income_df_hispanic<- get_acs_recs(geography = 'county',
 
 white_hispanic_df<-merge(income_df_white, income_df_hispanic, by ='name')
 
+white_hispanic_df
 write.table(white_hispanic_df,"clipboard", sep='\t', row.names=FALSE )
-# 
-# white_transport_df <- get_acs_recs(geography = 'county',
-#              table.names = c('B08105A'),
-#              years=c(2019),
-#              acs.type = 'acs5')
-# 
-# 
-# 
-# hispanic_transport_df <- get_acs_recs(geography = 'county',
-#              table.names = c('B08105I'),
-#              years=c(2019),
-#              acs.type = 'acs5')
-# 
-# 
-# 
-# white_hispanic_df<-rbind(white_transport_df, hispanic_transport_df)%>%filter(name=='Region')
-# 
-# 
-# 
-# write.table(white_hispanic_df,"clipboard", sep='\t', row.names=FALSE )
-# 
 
-poverty_df_white_1 <- get_acs_recs(geography = 'county',
-             table.names = c('B17020H'),
-             years=c(2019),
-             acs.type = 'acs5')
-
-write.table(poverty_df_white_1 ,"clipboard", sep='\t', row.names=FALSE )
-
-poverty_df_hispanic_1 <- get_acs_recs(geography = 'county',
-             table.names = c('B17020I'),
-             years=c(2019),
-             acs.type = 'acs5')
-
-write.table(poverty_df_hispanic_1 ,"clipboard", sep='\t', row.names=FALSE )
-
-# 
 ```
 
-B17020H_001
+### Means of Transportation to Work
 
 ```{r}
+
+white_transport_df <- get_acs_recs(geography = 'county',
+             table.names = c('B08105A'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+
+
+hispanic_transport_df <- get_acs_recs(geography = 'county',
+             table.names = c('B08105I'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+
+
+white_hispanic_df<-rbind(white_transport_df, hispanic_transport_df)%>%filter(name=='Region')
+
+
+
+write.table(white_hispanic_df,"clipboard", sep='\t', row.names=FALSE )
+
+
+white_hispanic_df
 
 
 
 ```
 
-B17020H_002
-
-POVERTY STATUS IN THE PAST 12 MONTHS BY AGE (WHITE ALONE, NOT HISPANIC
-OR LATINO)
-
-B17020I_001
-
-B17020I_002
-
-B19013H_001 Median Income
-
-B19013I_001
+### Country of Origin
 
 ```{r}
-income_df_white <- get_acs_recs(geography = 'county',
-             table.names = c('B19013H'),
-             years=c(2019),
-             acs.type = 'acs1')
-
-
-income_df_hispanic<- get_acs_recs(geography = 'county',
-             table.names = c('B19013I'),
-             years=c(2019),
-             acs.type = 'acs1')
-
-
 
 country_df_hispanic<- get_acs_recs(geography = 'county',
              table.names = c('B03001'),
@@ -239,6 +212,6 @@ country_df_hispanic<- get_acs_recs(geography = 'county',
 
 
 
-
+country_df_hispanic
 
 ```
