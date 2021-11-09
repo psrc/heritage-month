@@ -21,8 +21,6 @@ Sys.getenv("CENSUS_API_KEY")
 
 ## American Indian/Alaskan Native Heritage Month Analysis
 
-
-
 People's racial and ethnicity identities are complex and shifting. Census has also changed how it has asked race and ethnicity questions over the years, leading to an unclear picture of the source of changes in numbers of people by race and ethnicity. We cannot easily identify how much racial and ethnic change comes from regular demographic shifts, how much comes from Census question wording, and how much comes from change in how people see themselves. [A recent NPR story](https://www.npr.org/2021/08/22/1029609786/2020-census-data-results-white-population-shrinking-decline-non-hispanic-race) dove into the complexities of understanding shifts in race from the 2010 to 2020 Census. The story explained that "comparing race data over time can be like comparing apples and oranges".
 
 With all these caveats in mind, **what do the 2010 and 2020 Censuses tell us about people's categorization of their American Indian/Alaskan Native ethnicity?**

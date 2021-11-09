@@ -57,12 +57,12 @@ What are the poverty rates for AIAN people? \* B17001 B19001
 overall_age_df <- get_acs_recs(geography = 'county',
              table.names = c('B01002'),
              years=c(2019),
-             acs.type = 'acs1')
+             acs.type = 'acs5')
 
 AIAN_age_df<-get_acs_recs(geography = 'county',
              table.names = c('B01002C'),
              years=c(2019),
-             acs.type = 'acs1')
+             acs.type = 'acs5')
 
 overall_AIAN_df<-rbind(overall_age_df, AIAN_age_df)
 age_df<-overall_AIAN_df%>% filter(label=='Estimate!!Median age --!!Total:' & name !='Region') %>% mutate('AIAN'=ifelse(variable=='B01002_001', 'All Population', 'AIAN Population'))
@@ -122,13 +122,13 @@ poverty_df_AIAN
 income_df_white <- get_acs_recs(geography = 'county',
              table.names = c('B19013H'),
              years=c(2019),
-             acs.type = 'acs1')
+             acs.type = 'acs5')
 
 
 income_df_AIAN<- get_acs_recs(geography = 'county',
              table.names = c('B19013C'),
              years=c(2019),
-             acs.type = 'acs1')
+             acs.type = 'acs5')
 
 white_AIAN_df<-merge(income_df_white, income_df_AIAN, by ='name')
 
@@ -183,3 +183,34 @@ write.table(AIAN_tribes,"clipboard", sep='\t', row.names=FALSE )
 24,600 identified American Indian Tribes
 
 3,239 Alaskan Native Tribes
+
+```{r}
+race_table<-get_acs_recs(geography = 'county',
+             table.names = c('B02001'),
+             years=c(2019),
+             acs.type = 'acs1')
+
+race_format<-format_estimates(race_table, type = 'share', moe = TRUE)
+```
+
+
+```{r}
+homeownership<-get_acs_recs(geography = 'county',
+             table.names = c('B25003'),
+             years=c(2019),
+             acs.type = 'acs5')
+write.table(homeownership,"clipboard", sep='\t', row.names=FALSE )
+
+
+homeownership_white<-get_acs_recs(geography = 'county',
+             table.names = c('B25003H'),
+             years=c(2019),
+             acs.type = 'acs5')
+write.table(homeownership_white,"clipboard", sep='\t', row.names=FALSE )
+
+homeownership_aian<-get_acs_recs(geography = 'county',
+             table.names = c('B25003C'),
+             years=c(2019),
+             acs.type = 'acs5')
+write.table(homeownership_aian,"clipboard", sep='\t', row.names=FALSE )
+```
