@@ -195,7 +195,7 @@ tract.lyr <- st_read(gdb.nm, tract_layer_name, crs = spn)
 
 
 m<-create_tract_map_fixed_scale(tract.tbl=tract.tbl, tract.lyr=tract.lyr,  
-                 legend.title='American Indian and Alaskan Native Population', legend.subtitle='by Census Tract')
+                 legend.title='American Indian and Alaska Native Population', legend.subtitle='by Census Tract')
 ```
 
 ```{r where, include=FALSE}

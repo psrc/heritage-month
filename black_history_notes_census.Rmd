@@ -1,0 +1,239 @@
+---
+title: "Black History 2010-2020 Census"
+author: "suzanne"
+date: "2021"
+output: html_document
+---
+
+```{r load_libraries, echo=FALSE,include=FALSE}
+library(scales)
+library(sf)
+library(dplyr)
+library(psrccensus)
+library(ggplot2)
+library(tidyr)
+library(stringr)
+library(janitor)
+library(scales)
+library(rgdal)
+Sys.getenv("CENSUS_API_KEY")
+```
+
+## Black History Month Census data
+
+
+
+People's racial and ethnicity identities are complex and shifting. Census has also changed how it has asked race and ethnicity questions over the years, leading to an unclear picture of the source of changes in numbers of people by race and ethnicity. We cannot easily identify how much racial and ethnic change comes from regular demographic shifts, how much comes from Census question wording, and how much comes from change in how people see themselves.
+
+With all these caveats in mind, **what do the 2010 and 2020 Censuses tell us about people's categorization of their Black identity?**
+
+P006003 - Black in combination or alone
+
+```{r county_results, include=FALSE}
+tbl_names <- paste0('P006')
+# Get total Black people 2010
+black_2010_county<-get_decennial_recs(geography = 'county', table_codes = 'P006', year = 2010)
+
+black_2010_county_total<- black_2010_county %>% filter(label=='Total races tallied!!Black or African American alone or in combination with one or more other races')%>% select('NAME', 'value')
+write.table(black_2010_county_total,"clipboard", sep='\t', row.names=FALSE )
+
+black_2010_tract<-get_decennial_recs(geography = 'tract', table_codes = 'P006', year = 2010)
+
+black_2010_tract_total<- black_2010_tract %>% filter(label=='Total races tallied!!Black or African American alone or in combination with one or more other races')%>% select('GEOID', 'value')
+
+# Get total pop 2010
+tbl_names <- paste0('P001')
+total_2010_county<-get_decennial_recs(geography = 'county', table_codes = 'P001', year = 2010)
+total_2010_county<-total_2010_county %>% select('NAME','value')
+write.table(total_2010_county,"clipboard", sep='\t', row.names=FALSE )
+
+
+black_2020<-read.csv('C:\\Users\\SChildress\\Documents\\GitHub\\heritage-month\\data\\black_2020_tract.csv')
+
+
+black_2020<- black_2020 %>% mutate(black_pop=P0010004+ P0010011+P0010016+ P0010017+ P0010018+ P0010019+P0010027+
+                                  P0010028+
+                                  P0010029+
+                                  P0010030+
+                                  P0010037+
+                                  P0010038+
+                                  P0010039+
+                                  P0010040+
+                                  P0010041+
+                                  P0010042+
+                                  P0010048+
+                                  P0010049+
+                                  P0010050+
+                                  P0010051+
+                                  P0010052+
+                                  P0010053+
+                                  P0010058+
+                                  P0010059+
+                                  P0010060+
+                                  P0010061+
+                                  P0010064+
+                                  P0010065+
+                                  P0010066+
+                                  P0010067+
+                                  P0010069+
+                                  P0010071)
+
+black_2020_county<-black_2020 %>% filter(GEOID %in% c('0500000US53033', '0500000US53035','0500000US53053', '0500000US53061')) %>% select('GEOID', 'black_pop', 'P0010001')
+
+
+write.table(black_2020_county,"clipboard", sep='\t', row.names=FALSE )
+
+
+```
+
+
+
+
+
+```{r}
+create_tract_map_fixed_scale<- function(tract.tbl, tract.lyr,
+                             map.title = NULL, map.subtitle = NULL,
+                             map.title.position = NULL,
+                             legend.title = NULL, legend.subtitle = NULL,
+                             map.lat=47.615, map.lon=-122.257, map.zoom=8.5, wgs84=4326){
+
+
+  # Summarize and Aggregate Tract Data by Year and Attribute to Map and join to tract layer for mapping
+  # rename census value column to estimate to match ACS
+  tbl <- tract.tbl %>%
+    dplyr::rename_at(dplyr::vars(matches("value")),function(x) "estimate") %>%
+    dplyr::select(.data$GEOID,.data$estimate) %>%
+    dplyr::mutate(dplyr::across(c('GEOID'), as.character))%>%
+    dplyr::group_by(.data$GEOID) %>%
+    dplyr::summarise(Total=sum(.data$estimate))
+
+    tract.lyr<-tract.lyr%>%
+    # make geo names across 2010 and 2020
+    dplyr::rename_at(dplyr::vars(matches("geoid10")),function(x) "geoid") %>%
+    dplyr::rename_at(dplyr::vars(matches("geoid20")),function(x) "geoid")
+
+  c.layer <- dplyr::left_join(tract.lyr,tbl, by = c("geoid"="GEOID")) %>%
+    sf::st_transform(wgs84)
+  
+  color.bins<- c(0, 200, 500, 1000, 5000)
+  map.labels <- c("0-200", "200-500", '500-1000',
+                  "1000-5000")
+
+  pal <- leaflet::colorBin(palette="Purples", bins=color.bins, domain = c.layer$Total)
+
+
+  labels <- paste0("Census Tract: ", c.layer$geoid, '<p></p>',
+                   'Total: ', prettyNum(round(c.layer$Total, -1), big.mark = ",")) %>% lapply(htmltools::HTML)
+
+  m <- leaflet::leaflet() %>%
+    leaflet::addMapPane(name = "polygons", zIndex = 410) %>%
+    leaflet::addMapPane(name = "maplabels", zIndex = 500) %>% # higher zIndex rendered on top
+
+    leaflet::addProviderTiles("CartoDB.VoyagerNoLabels") %>%
+    leaflet::addProviderTiles("CartoDB.VoyagerOnlyLabels",
+                              options = leaflet::leafletOptions(pane = "maplabels"),
+                              group = "Labels") %>%
+
+    leaflet::addEasyButton(leaflet::easyButton(icon="fa-globe",
+                                               title="Region",
+                                               onClick=leaflet::JS("function(btn, map){map.setView([47.615,-122.257],8.5); }"))) %>%
+    leaflet::addPolygons(data=c.layer,
+                         fillOpacity = 0.7,
+                         fillColor = pal(c.layer$Total),
+                         weight = 0.7,
+                         color = "#BCBEC0",
+                         group="Population",
+                         opacity = 0,
+                         stroke=FALSE,
+                         options = leaflet::leafletOptions(pane = "polygons"),
+                         dashArray = "",
+                         highlight = leaflet::highlightOptions(
+                           weight =5,
+                           color = "76787A",
+                           dashArray ="",
+                           fillOpacity = 0.7,
+                           bringToFront = TRUE),
+                         label = labels,
+                         labelOptions = leaflet::labelOptions(
+                           style = list("font-weight" = "normal", padding = "3px 8px"),
+                           textsize = "15px",
+                           direction = "auto")) %>%
+
+    leaflet::addLegend(pal = pal,
+                       values = c.layer$Total,
+                       position = "bottomright",
+                       title = paste(legend.title, '<br>', legend.subtitle),
+                       labFormat = function(type, cuts, p) {  # Here's the trick
+                                                  paste0(map.labels)
+                             }
+                       ) %>%
+
+    leaflet::addControl(html = paste(map.title, '<br>', map.subtitle),
+                        position = map.title.position,
+                        layerId = 'mapTitle') %>%
+
+    leaflet::addLayersControl(baseGroups = "CartoDB.VoyagerNoLabels",
+                              overlayGroups = c("Labels", "Population")) %>%
+
+    leaflet::setView(lng=map.lon, lat=map.lat, zoom=map.zoom)
+
+  return(m)
+
+}
+
+```
+
+```{r where, include=FALSE}
+tract.tbl <- black_2020%>%filter(TRACT>0)%>% 
+                 select(GEOID, black_pop)%>%
+                 rename(estimate=black_pop)
+
+#make the geoid be matching with the tract layer
+tract.tbl<- tract.tbl%>% mutate(GEOID=str_sub(GEOID,-11,-1 ))
+
+
+
+
+
+gdb.nm <- paste0("MSSQL:server=",
+"AWS-PROD-SQL\\Sockeye",
+";database=",
+"ElmerGeo",
+";trusted_connection=yes")
+
+spn <-  2285
+wgs84=4326
+
+tract_layer_name <- "dbo.tract2020_nowater"
+
+tract.lyr <- st_read(gdb.nm, tract_layer_name, crs = spn)
+
+
+
+m<-create_tract_map_fixed_scale(tract.tbl=tract.tbl, tract.lyr=tract.lyr,  
+                 legend.title='2020 Black Population', legend.subtitle='by Census Tract')
+```
+
+```{r where, include=FALSE}
+#tract.big.tbl <- psrccensus::get_decennial_recs(geography='tract',table_codes=c('P005'),year=c(2010))
+#tract.tbl_2010 <- tract.big.tbl %>%
+#filter(label=='Total!!Hispanic or Latino')
+
+#tract_layer_2010_name <- "dbo.tract2010_nowater"
+#tract.lyr_2010 <- st_read(gdb.nm, tract_layer_2010_name, crs = spn)
+
+#m_2010<-create_tract_map(tract.tbl=tract.tbl_2010 , tract.lyr=tract.lyr_2010,  
+                 #legend.title='Hispanic Population', legend.subtitle='by Census Tract')
+
+
+
+```
+
+The plot below shows Census tracts that have high numbers of people identifying as Hispanic.
+
+Tracts near Lynnwood, Burien, Renton, Kent, and Tacoma stand out as having high numbers of people who identify as Hispanic.
+
+```{r map, echo=FALSE}
+m
+
+```

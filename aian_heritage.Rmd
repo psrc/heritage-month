@@ -64,6 +64,13 @@ AIAN_age_df<-get_acs_recs(geography = 'county',
              years=c(2019),
              acs.type = 'acs5')
 
+AIAN_age_df_test <- AIAN_age_df%>% filter(name !='Region' | (!(stringr::str_detect(label, 'Median'))&(stringr::str_detect(label, 'Average'))))
+
+AIAN_age_df_test2 <- AIAN_age_df%>% filter(!(stringr::str_detect(label, 'Median')))
+                                     
+                                     #||
+                             #!(stringr::str_detect(label, 'Median')& (stringr::str_detect(label,'Average'))))
+
 overall_AIAN_df<-rbind(overall_age_df, AIAN_age_df)
 age_df<-overall_AIAN_df%>% filter(label=='Estimate!!Median age --!!Total:' & name !='Region') %>% mutate('AIAN'=ifelse(variable=='B01002_001', 'All Population', 'AIAN Population'))
 write.table(age_df,"clipboard", sep='\t', row.names=FALSE )

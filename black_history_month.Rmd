@@ -1,0 +1,228 @@
+---
+title: "Black History Month ACS Data"
+author: "suzanne"
+date: "8/19/2021"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Notes for Black History Month
+
+```{r load_libraries}
+library(devtools)
+library(sf)
+library(dplyr)
+library(psrccensus)
+library(ggplot2)
+library(tidycensus)
+Sys.getenv("CENSUS_API_KEY")
+```
+
+I searched the api table list for AIAN to see what data is available.
+<https://api.census.gov/data/2019/acs/acs5/variables.html>
+
+How does AIAN age breakdown compare to non-AIAN? \* Age is found in
+B1002I, B1002A
+
+What Races do AIAN people identify with? \* B3002
+
+What specific origins do people come from? \* B300, B05003
+
+What means of transportation do people use to get to work? \* B06004,
+B06007 means of transportation to work for workplace geo
+
+Information about grandparents living with grandchildren \* B08105H; I
+grandparents B10051I
+
+Are more AIAN women giving birth than all women? \* B13002 women who
+gave birth
+
+What are the educational attainment levels for AIAN people? \* B15002
+educational attainment
+
+What are the poverty rates for AIAN people? \* B17001 B19001
+
+```{r}
+var_list<- load_variables(2019, "acs5", cache = TRUE)
+```
+
+
+```{r}
+homeownership<-get_acs_recs(geography = 'county',
+             table.names = c('B25003'),
+             years=c(2019),
+             acs.type = 'acs5')
+write.table(homeownership,"clipboard", sep='\t', row.names=FALSE )
+
+
+homeownership_white<-get_acs_recs(geography = 'county',
+             table.names = c('B25003H'),
+             years=c(2019),
+             acs.type = 'acs5')
+write.table(homeownership_white,"clipboard", sep='\t', row.names=FALSE )
+
+homeownership_aian<-get_acs_recs(geography = 'county',
+             table.names = c('B25003C'),
+             years=c(2019),
+             acs.type = 'acs5')
+write.table(homeownership_aian,"clipboard", sep='\t', row.names=FALSE )
+```
+
+### Median Age by AIAN and All
+
+```{r}
+
+overall_age_df <- get_acs_recs(geography = 'county',
+             table.names = c('B01002'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+AIAN_age_df<-get_acs_recs(geography = 'county',
+             table.names = c('B01002C'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+AIAN_age_df_test <- AIAN_age_df%>% filter(name !='Region' | (!(stringr::str_detect(label, 'Median'))&(stringr::str_detect(label, 'Average'))))
+
+AIAN_age_df_test2 <- AIAN_age_df%>% filter(!(stringr::str_detect(label, 'Median')))
+                                     
+                                     #||
+                             #!(stringr::str_detect(label, 'Median')& (stringr::str_detect(label,'Average'))))
+
+overall_AIAN_df<-rbind(overall_age_df, AIAN_age_df)
+age_df<-overall_AIAN_df%>% filter(label=='Estimate!!Median age --!!Total:' & name !='Region') %>% mutate('AIAN'=ifelse(variable=='B01002_001', 'All Population', 'AIAN Population'))
+write.table(age_df,"clipboard", sep='\t', row.names=FALSE )
+
+age_df
+
+ggplot(data=age_df, aes(x=name, y=estimate, fill=AIAN))+geom_bar(stat='identity', position=position_dodge())+
+  geom_text(aes(label=estimate), vjust=1.6, color="white",
+            position = position_dodge(0.9), size=3.5)
+
+```
+
+### Women who gave birth
+
+```{r}
+women_birth_df<-get_acs_recs(geography = 'county',
+             table.names = c('B13002'),
+             years=c(2019),
+             acs.type = 'acs1') 
+women_birth_df_AIAN<-get_acs_recs(geography = 'county',
+             table.names = c('B13002C'),
+             years=c(2019),
+             acs.type = 'acs5')
+women_birth_df
+women_birth_df_AIAN
+write.table(women_birth_df,"clipboard", sep='\t', row.names=FALSE )
+write.table(women_birth_df_AIAN,"clipboard", sep='\t', row.names=FALSE )
+```
+
+### Poverty Rates
+
+```{r}
+poverty_df_white <- get_acs_recs(geography = 'county',
+             table.names = c('B17020H'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+
+poverty_df_AIAN<- get_acs_recs(geography = 'county',
+             table.names = c('B17020C'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+write.table(poverty_df_white,"clipboard", sep='\t', row.names=FALSE )
+write.table(poverty_df_AIAN,"clipboard", sep='\t', row.names=FALSE )
+poverty_df_white
+poverty_df_AIAN
+```
+
+17% of AIAN people in poverty, vs 7% of whites
+
+### Median Income
+
+```{r}
+
+income_df_white <- get_acs_recs(geography = 'county',
+             table.names = c('B19013H'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+
+income_df_AIAN<- get_acs_recs(geography = 'county',
+             table.names = c('B19013C'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+white_AIAN_df<-merge(income_df_white, income_df_AIAN, by ='name')
+
+white_AIAN_df
+write.table(white_AIAN_df,"clipboard", sep='\t', row.names=FALSE )
+
+```
+
+### Means of Transportation to Work
+
+```{r}
+
+white_transport_df <- get_acs_recs(geography = 'county',
+             table.names = c('B08105A'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+
+
+AIAN_transport_df <- get_acs_recs(geography = 'county',
+             table.names = c('B08105C'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+
+
+white_AIAN_df<-rbind(white_transport_df, AIAN_transport_df)%>%filter(name=='Region')
+
+
+
+write.table(white_AIAN_df,"clipboard", sep='\t', row.names=FALSE )
+
+
+white_AIAN_df
+
+
+
+```
+
+Which tribes?
+
+```{r}
+AIAN_tribes<- get_acs_recs(geography = 'county',
+             table.names = c('B02014'),
+             years=c(2019),
+             acs.type = 'acs5')
+write.table(AIAN_tribes,"clipboard", sep='\t', row.names=FALSE )
+```
+
+34,176 total people who identify as American Indian or Alaskan Native
+
+24,600 identified American Indian Tribes
+
+3,239 Alaskan Native Tribes
+
+```{r}
+race_table<-get_acs_recs(geography = 'county',
+             table.names = c('B02001'),
+             years=c(2019),
+             acs.type = 'acs1')
+
+race_format<-format_estimates(race_table, type = 'share', moe = TRUE)
+```
+
+
+
