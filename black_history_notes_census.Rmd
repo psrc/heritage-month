@@ -80,9 +80,12 @@ black_2020<- black_2020 %>% mutate(black_pop=P0010004+ P0010011+P0010016+ P00100
 
 black_2020_county<-black_2020 %>% filter(GEOID %in% c('0500000US53033', '0500000US53035','0500000US53053', '0500000US53061')) %>% select('GEOID', 'black_pop', 'P0010001')
 
+black_2020_county_all<-black_2020 %>% filter(GEOID %in% c('0500000US53033', '0500000US53035','0500000US53053', '0500000US53061')) 
+
 
 write.table(black_2020_county,"clipboard", sep='\t', row.names=FALSE )
 
+write.table(black_2020_county_all,"clipboard", sep='\t', row.names=FALSE )
 
 ```
 
