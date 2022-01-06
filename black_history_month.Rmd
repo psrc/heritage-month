@@ -57,21 +57,21 @@ var_list<- load_variables(2019, "acs5", cache = TRUE)
 homeownership<-get_acs_recs(geography = 'county',
              table.names = c('B25003'),
              years=c(2019),
-             acs.type = 'acs5')
+             acs.type = 'acs1')
 write.table(homeownership,"clipboard", sep='\t', row.names=FALSE )
 
 
 homeownership_white<-get_acs_recs(geography = 'county',
              table.names = c('B25003H'),
              years=c(2019),
-             acs.type = 'acs5')
+             acs.type = 'acs1')
 write.table(homeownership_white,"clipboard", sep='\t', row.names=FALSE )
 
-homeownership_aian<-get_acs_recs(geography = 'county',
+homeownership_black<-get_acs_recs(geography = 'county',
              table.names = c('B25003C'),
              years=c(2019),
-             acs.type = 'acs5')
-write.table(homeownership_aian,"clipboard", sep='\t', row.names=FALSE )
+             acs.type = 'acs1')
+write.table(homeownership_black, "clipboard", sep='\t', row.names=FALSE )
 ```
 
 ### Median Age by AIAN and All
