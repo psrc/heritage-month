@@ -31,11 +31,7 @@ How does Black age breakdown compare to non-Black? \* Age is found in
 B1002I, B1002A
 
 
-
 What specific origins do people come from? \* B300, B05003
-
-What means of transportation do people use to get to work? \* B06004,
-B06007 means of transportation to work for workplace geo
 
 Information about grandparents living with grandchildren \* B08105H; I
 grandparents B10051I
@@ -43,10 +39,7 @@ grandparents B10051I
 Are more Black women giving birth than all women? \* B13002 women who
 gave birth
 
-What are the educational attainment levels for Black people? \* B15002
-educational attainment
 
-What are the poverty rates for Black people? \* B17001 B19001
 
 ```{r}
 var_list<- load_variables(2019, "acs5", cache = TRUE)
@@ -91,7 +84,7 @@ homeownership_white<-get_acs_recs(geography = 'county',
 write.table(homeownership_white,"clipboard", sep='\t', row.names=FALSE )
 
 homeownership_black<-get_acs_recs(geography = 'county',
-             table.names = c('B25003C'),
+             table.names = c('B25003B'),
              years=c(2019),
              acs.type = 'acs1')
 write.table(homeownership_black, "clipboard", sep='\t', row.names=FALSE )
@@ -107,7 +100,7 @@ overall_age_df <- get_acs_recs(geography = 'county',
              acs.type = 'acs5')
 
 Black_age_df<-get_acs_recs(geography = 'county',
-             table.names = c('B01002C'),
+             table.names = c('B01002B'),
              years=c(2019),
              acs.type = 'acs5')
 
@@ -138,7 +131,7 @@ women_birth_df<-get_acs_recs(geography = 'county',
              years=c(2019),
              acs.type = 'acs1') 
 women_birth_df_Black<-get_acs_recs(geography = 'county',
-             table.names = c('B13002C'),
+             table.names = c('B13002B'),
              years=c(2019),
              acs.type = 'acs5')
 women_birth_df
@@ -165,7 +158,7 @@ poverty_df_white<- poverty_df_white %>% filter(label=='Estimate!!Total:' | label
 
 poverty_df_black<- poverty_df_Black %>% filter(label=='Estimate!!Total:' | label=='Estimate!!Total:!!Income in the past 12 months below poverty level:')%>%select(name, estimate,moe,label)%>%tidyr::pivot_wider(names_from=label,values_from=c(estimate,moe) )
 
-poverty_df_black_white<- merge(poverty_df_white, poverty_df_black, on='name')
+poverty_df_black_white<- merge(poverty_df_black, poverty_df_white, by='name')
 
 write.table(poverty_df_black_white,"clipboard", sep='\t', row.names=FALSE )
 
@@ -174,24 +167,29 @@ write.table(poverty_df_black_white,"clipboard", sep='\t', row.names=FALSE )
 
 
 ### Means of Transportation to Work
+```{r}
+
+```
 
 ```{r}
 
 white_transport_df <- get_acs_recs(geography = 'county',
              table.names = c('B08105A'),
              years=c(2019),
-             acs.type = 'acs5')
+             acs.type = 'acs5')%>%filter(name=='Region')
 
 
 
 Black_transport_df <- get_acs_recs(geography = 'county',
-             table.names = c('B08105C'),
+             table.names = c('B08105B'),
              years=c(2019),
-             acs.type = 'acs5')
+             acs.type = 'acs5')%>%filter(name=='Region')
 
 
 
-white_Black_df<-rbind(white_transport_df, Black_transport_df)%>%filter(name=='Region')
+white_Black_df<-merge(Black_transport_df, white_transport_df, by='label')%>% 
+  select(estimate.x, moe.x, label, estimate.y, moe.y)
+
 
 
 
@@ -203,8 +201,93 @@ white_Black_df
 
 
 ```
+### Educational Attainment
+
+```{r}
+
+white_df <- get_acs_recs(geography = 'county',
+             table.names = c('C15002H'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')
 
 
 
+Black_df <- get_acs_recs(geography = 'county',
+             table.names = c('C15002B'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+
+
+white_Black_df<-merge(Black_df, white_df, by='label')%>% 
+  select(estimate.x, moe.x, label, estimate.y, moe.y)
+
+
+
+
+write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )
+
+
+white_Black_df
+
+
+
+```
+### B25014, Occupants per room
+
+```{r}
+white_df <- get_acs_recs(geography = 'county',
+             table.names = c('B25014H'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+
+
+Black_df <- get_acs_recs(geography = 'county',
+             table.names = c('B25014B'),
+             years=c(2019),
+             acs.type = 'acs5')
+```
+
+
+
+
+
+```{r}
+white_Black_df<-merge(Black_df, white_df, by='label')%>% 
+  select(estimate.x, moe.x, label, estimate.y, moe.y)
+
+
+
+
+write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )
+
+
+white_Black_df
+
+
+
+```
+```{r}
+#Units in Structure
+white_df <- get_acs_recs(geography = 'county',
+             table.names = c('B25032H'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+
+
+Black_df <- get_acs_recs(geography = 'county',
+             table.names = c('B25032B'),
+             years=c(2019),
+             acs.type = 'acs5')
+white_Black_df<-merge(Black_df, white_df, by='label')%>% 
+  select(estimate.x, moe.x, label, estimate.y, moe.y)
+
+write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )
+
+
+white_Black_df
+```
 
 
