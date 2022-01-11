@@ -24,22 +24,6 @@ library(tidycensus)
 Sys.getenv("CENSUS_API_KEY")
 ```
 
-I searched the api table list for Black to see what data is available.
-<https://api.census.gov/data/2019/acs/acs5/variables.html>
-
-How does Black age breakdown compare to non-Black? \* Age is found in
-B1002I, B1002A
-
-
-What specific origins do people come from? \* B300, B05003
-
-Information about grandparents living with grandchildren \* B08105H; I
-grandparents B10051I
-
-Are more Black women giving birth than all women? \* B13002 women who
-gave birth
-
-
 
 ```{r}
 var_list<- load_variables(2019, "acs5", cache = TRUE)
@@ -50,107 +34,105 @@ var_list<- load_variables(2019, "acs5", cache = TRUE)
 
 ```{r}
 
-income_df_white <- get_acs_recs(geography = 'county',
-             table.names = c('B19013H'),
-             years=c(2019),
-             acs.type = 'acs1')
-
 
 income_df_Black<- get_acs_recs(geography = 'county',
              table.names = c('B19013B'),
              years=c(2019),
              acs.type = 'acs1')
 
-white_Black_df<-merge(income_df_white, income_df_Black, by ='name')
 
-white_Black_df_formatted<-white_Black_df %>% select(name, estimate.x, moe.x, estimate.y, moe.y) %>% rename(County= name, white_nonhispanic_median_income=estimate.x, white_nonhispanic_median_income_moe=moe.x, black_median_income=estimate.y, black_median_income_moe=moe.y)
+income_df_white <- get_acs_recs(geography = 'county',
+             table.names = c('B19013H'),
+             years=c(2019),
+             acs.type = 'acs1')
 
-white_Black_df
-write.table(white_Black_df_formatted,"clipboard", sep='\t', row.names=FALSE )
+Black_white_df<-merge(income_df_Black,income_df_white, by ='name')
+
+Black_white_df_formatted<-Black_white_df %>% select(name, estimate.x, moe.x, estimate.y, moe.y) %>% rename(County= name, white_nonhispanic_median_income=estimate.x, white_nonhispanic_median_income_moe=moe.x, black_median_income=estimate.y, black_median_income_moe=moe.y)
+
+Black_white_df_formatted
+write.table(Black_white_df_formatted,"clipboard", sep='\t', row.names=FALSE )
 
 ```
+
+## Homeownership
+
 ```{r}
-homeownership<-get_acs_recs(geography = 'county',
-             table.names = c('B25003'),
-             years=c(2019),
-             acs.type = 'acs1')
-write.table(homeownership,"clipboard", sep='\t', row.names=FALSE )
 
-
-homeownership_white<-get_acs_recs(geography = 'county',
-             table.names = c('B25003H'),
-             years=c(2019),
-             acs.type = 'acs1')
-write.table(homeownership_white,"clipboard", sep='\t', row.names=FALSE )
 
 homeownership_black<-get_acs_recs(geography = 'county',
              table.names = c('B25003B'),
              years=c(2019),
              acs.type = 'acs1')
-write.table(homeownership_black, "clipboard", sep='\t', row.names=FALSE )
+
+homeownership_white<-get_acs_recs(geography = 'county',
+             table.names = c('B25003H'),
+             years=c(2019),
+             acs.type = 'acs1')
+
+
+homeownership_df_black_white<- merge(homeownership_black, homeownership_white, by=c('label','name'))
+write.table(homeownership_df_black_white,"clipboard", sep='\t', row.names=FALSE )
+
+homeownership_df_black_white
+
 ```
 
 ### Median Age by Black and All
 
 ```{r}
 
-overall_age_df <- get_acs_recs(geography = 'county',
-             table.names = c('B01002'),
-             years=c(2019),
-             acs.type = 'acs5')
-
 Black_age_df<-get_acs_recs(geography = 'county',
              table.names = c('B01002B'),
              years=c(2019),
              acs.type = 'acs5')
 
-Black_age_df_test <- Black_age_df%>% filter(name !='Region' | (!(stringr::str_detect(label, 'Median'))&(stringr::str_detect(label, 'Average'))))
 
-Black_age_df_test2 <- Black_age_df%>% filter(!(stringr::str_detect(label, 'Median')))
-                                     
-                                     #||
-                             #!(stringr::str_detect(label, 'Median')& (stringr::str_detect(label,'Average'))))
+white_age_df <- get_acs_recs(geography = 'county',
+             table.names = c('B01002H'),
+             years=c(2019),
+             acs.type = 'acs5')
 
-overall_Black_df<-rbind(overall_age_df, Black_age_df)
-age_df<-overall_Black_df%>% filter(label=='Estimate!!Median age --!!Total:' & name !='Region') %>% mutate('Black'=ifelse(variable=='B01002_001', 'All Population', 'Black Population'))
-write.table(age_df,"clipboard", sep='\t', row.names=FALSE )
 
-age_df
+white_Black_df<-merge(Black_age_df, white_age_df, by=c('name','label'))%>% filter(label=='Estimate!!Median age --!!Total:')%>%
+  select(name,estimate.x, estimate.y, )%>% rename('County'='name', 'Black population' ='estimate.x', 'White Population'='estimate.y')
 
-ggplot(data=age_df, aes(x=name, y=estimate, fill=Black))+geom_bar(stat='identity', position=position_dodge())+
-  geom_text(aes(label=estimate), vjust=1.6, color="white",
-            position = position_dodge(0.9), size=3.5)
+write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )
+white_Black_df
 
 ```
 
 ### Women who gave birth
 
 ```{r}
-women_birth_df<-get_acs_recs(geography = 'county',
-             table.names = c('B13002'),
-             years=c(2019),
-             acs.type = 'acs1') 
 women_birth_df_Black<-get_acs_recs(geography = 'county',
              table.names = c('B13002B'),
              years=c(2019),
              acs.type = 'acs5')
-women_birth_df
-women_birth_df_Black
-write.table(women_birth_df,"clipboard", sep='\t', row.names=FALSE )
-write.table(women_birth_df_Black,"clipboard", sep='\t', row.names=FALSE )
+
+women_birth_df_white<-get_acs_recs(geography = 'county',
+             table.names = c('B13002H'),
+             years=c(2019),
+             acs.type = 'acs1') 
+
+
+women_birth_df_black_white<- merge(women_birth_df_Black, women_birth_df_white, by=c('label','name')) %>%filter(label=='Estimate!!Total:' |label =='Estimate!!Total:!!Women who had a birth in the past 12 months:')%>% filter(name=='Region')
+
+write.table(women_birth_df_black_white,"clipboard", sep='\t', row.names=FALSE )
+#7% of Black women, 5% of White Women
 ```
 
 ### Poverty Rates
 
 ```{r}
-poverty_df_white <- get_acs_recs(geography = 'county',
-             table.names = c('B17020H'),
-             years=c(2019),
-             acs.type = 'acs5')
 
 
 poverty_df_Black<- get_acs_recs(geography = 'county',
              table.names = c('B17020B'),
+             years=c(2019),
+             acs.type = 'acs5')
+poverty_df_white <- get_acs_recs(geography = 'county',
+             table.names = c('B17020H'),
              years=c(2019),
              acs.type = 'acs5')
 
@@ -167,9 +149,6 @@ write.table(poverty_df_black_white,"clipboard", sep='\t', row.names=FALSE )
 
 
 ### Means of Transportation to Work
-```{r}
-
-```
 
 ```{r}
 
@@ -269,25 +248,94 @@ white_Black_df
 
 ```
 ```{r}
-#Units in Structure
+
 white_df <- get_acs_recs(geography = 'county',
              table.names = c('B25032H'),
              years=c(2019),
-             acs.type = 'acs5')
+             acs.type = 'acs5')%>%filter(name=='Region')
 
 
 
 Black_df <- get_acs_recs(geography = 'county',
              table.names = c('B25032B'),
              years=c(2019),
-             acs.type = 'acs5')
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+white_Black_df<-merge(Black_df, white_df, by='label')%>% 
+  select(estimate.x, moe.x, label, estimate.y, moe.y)
+
+write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )%>%filter(name=='Region')
+```
+
+# Computers at home
+```{r}
+Black_df <- get_acs_recs(geography = 'county',
+             table.names = c('B28009B'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+
+white_df <- get_acs_recs(geography = 'county',
+             table.names = c('B28009H'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+
+
+
+white_Black_df<-merge(Black_df, white_df, by='label')%>% 
+  select(estimate.x, moe.x, label, estimate.y, moe.y)
+
+write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )%>%filter(name=='Region')
+```
+# Job sector
+
+```{r}
+Black_df <- get_acs_recs(geography = 'county',
+             table.names = c('C24010B'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+
+white_df <- get_acs_recs(geography = 'county',
+             table.names = c('C24010H'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+
+
+
 white_Black_df<-merge(Black_df, white_df, by='label')%>% 
   select(estimate.x, moe.x, label, estimate.y, moe.y)
 
 write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )
-
-
 white_Black_df
 ```
+
+
+# Health Insurance
+```{r}
+
+Black_df <- get_acs_recs(geography = 'county',
+             table.names = c('C27001B'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+
+white_df <- get_acs_recs(geography = 'county',
+             table.names = c('C27001H'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+
+
+
+white_Black_df<-merge(Black_df, white_df, by='label')%>% 
+  select(estimate.x, moe.x, label, estimate.y, moe.y)
+white_Black_df
+
+write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )
+```
+
 
 

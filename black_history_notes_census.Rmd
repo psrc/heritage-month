@@ -118,11 +118,9 @@ create_tract_map_fixed_scale<- function(tract.tbl, tract.lyr,
   c.layer <- dplyr::left_join(tract.lyr,tbl, by = c("geoid"="GEOID")) %>%
     sf::st_transform(wgs84)
   
-  color.bins<- c(0, 200, 500, 1000, 5000)
-  map.labels <- c("0-200", "200-500", '500-1000',
-                  "1000-5000")
 
-  pal <- leaflet::colorBin(palette="Purples", bins=color.bins, domain = c.layer$Total)
+
+  pal <- leaflet::colorNumeric(palette="Purples", domain = c.layer$Total)
 
 
   labels <- paste0("Census Tract: ", c.layer$geoid, '<p></p>',
