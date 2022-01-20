@@ -21,6 +21,10 @@ Sys.getenv("CENSUS_API_KEY")
 
 ## Black History Month Census data
 
+```{r}
+devtools::install_github("RobWHickman/sf.dotdensity")
+library(sf.dotdensity)
+```
 
 
 People's racial and ethnicity identities are complex and shifting. Census has also changed how it has asked race and ethnicity questions over the years, leading to an unclear picture of the source of changes in numbers of people by race and ethnicity. We cannot easily identify how much racial and ethnic change comes from regular demographic shifts, how much comes from Census question wording, and how much comes from change in how people see themselves.
@@ -184,7 +188,7 @@ create_tract_map_fixed_scale<- function(tract.tbl, tract.lyr,
 
 ```
 
-```{r where, include=FALSE}
+```{r , include=FALSE}
 tract.tbl <- black_2020%>%filter(TRACT>0)%>% 
                  select(GEOID, black_pop)%>%
                  rename(estimate=black_pop)
@@ -211,8 +215,9 @@ tract.lyr <- st_read(gdb.nm, tract_layer_name, crs = spn)
 
 
 
-m<-create_tract_map_fixed_scale(tract.tbl=tract.tbl, tract.lyr=tract.lyr,  
+m<-psrccensus::create_tract_map(tract.tbl=tract.tbl, tract.lyr=tract.lyr,  
                  legend.title='2020 Black Population', legend.subtitle='by Census Tract')
+m
 ```
 
 ```{r where, include=FALSE}
@@ -230,11 +235,29 @@ m<-create_tract_map_fixed_scale(tract.tbl=tract.tbl, tract.lyr=tract.lyr,
 
 ```
 
-The plot below shows Census tracts that have high numbers of people identifying as Hispanic.
 
-Tracts near Lynnwood, Burien, Renton, Kent, and Tacoma stand out as having high numbers of people who identify as Hispanic.
+
 
 ```{r map, echo=FALSE}
 m
+
+```
+```{r}
+spn <-  2285
+wgs84=4326
+
+
+
+seattle_redlining<- st_read(
+  "C:/Users/SChildress/Documents/GitHub/heritage-month/seattle_redlining_map/cartodb-query.shp")%>%
+    sf::st_transform(spn)
+  
+tract.lyr.king <- tract.lyr%>%filter(countyname=='King')
+
+map <- ggplot()+geom_sf(data = seattle_redlining, aes(fill=holc_grade))+scale_fill_brewer(palette="Reds")+geom_point(data=tract_data, aes(x=intptlon,y=intptlat,size=estimate, alpha=.001))+coord_sf(xlim=c(-122.445, -122.2), ylim=c(47.5,47.7), crs =4326)
+
+map
+
+
 
 ```

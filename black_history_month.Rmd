@@ -30,6 +30,25 @@ var_list<- load_variables(2019, "acs5", cache = TRUE)
 ```
 
 
+### Where were people born?
+
+```{r}
+
+
+nativity_df_Black<- get_acs_recs(geography = 'county',
+             table.names = c('B06004B'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+
+
+nativity_df_Black_formatted<-nativity_df_Black %>% select(name, estimate, moe) 
+
+nativity_df_Black_formatted
+write.table(nativity_df_Black_formatted,"clipboard", sep='\t', row.names=FALSE )
+
+```
+
 ### Median Income
 
 ```{r}
