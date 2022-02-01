@@ -24,11 +24,47 @@ library(tidycensus)
 Sys.getenv("CENSUS_API_KEY")
 ```
 
-
+What can we find?
 ```{r}
 var_list<- load_variables(2019, "acs5", cache = TRUE)
 ```
 
+
+### Educational Attainment
+
+```{r}
+
+
+
+
+Black_df <- get_acs_recs(geography = 'county',
+             table.names = c('C15002B'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+
+
+white_df <- get_acs_recs(geography = 'county',
+             table.names = c('C15002H'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+
+white_Black_df<-merge(Black_df, white_df, by='label')
+
+Black_white_df_formatted<-white_Black_df %>% select(label,estimate.x, moe.x, estimate.y, moe.y) %>% rename(Black_Educational_Attainment=estimate.x, Black_Educational_Attainment_MOE=moe.x, White_Educational_Attainment=estimate.y, White_Educational_Attainment_MOE=moe.y)
+
+
+
+
+
+write.table(Black_white_df_formatted,"clipboard", sep='\t', row.names=FALSE )
+
+
+Black_white_df_formatted
+
+
+```
 
 ### Where were people born?
 
@@ -42,11 +78,22 @@ nativity_df_Black<- get_acs_recs(geography = 'county',
 
 
 
-nativity_df_Black_formatted<-nativity_df_Black %>% select(name, estimate, moe) 
+nativity_df_Black_formatted<-nativity_df_Black 
 
 nativity_df_Black_formatted
 write.table(nativity_df_Black_formatted,"clipboard", sep='\t', row.names=FALSE )
 
+```
+```{r}
+
+ancestry_df<- get_acs_recs(geography = 'county',
+             table.names = c('B04006'),
+             years=c(2019),
+             acs.type = 'acs5')%>%
+  filter(name=='Region')
+
+
+write.table(ancestry_df,"clipboard", sep='\t', row.names=FALSE )
 ```
 
 ### Median Income
@@ -121,25 +168,7 @@ white_Black_df
 
 ```
 
-### Women who gave birth
 
-```{r}
-women_birth_df_Black<-get_acs_recs(geography = 'county',
-             table.names = c('B13002B'),
-             years=c(2019),
-             acs.type = 'acs5')
-
-women_birth_df_white<-get_acs_recs(geography = 'county',
-             table.names = c('B13002H'),
-             years=c(2019),
-             acs.type = 'acs1') 
-
-
-women_birth_df_black_white<- merge(women_birth_df_Black, women_birth_df_white, by=c('label','name')) %>%filter(label=='Estimate!!Total:' |label =='Estimate!!Total:!!Women who had a birth in the past 12 months:')%>% filter(name=='Region')
-
-write.table(women_birth_df_black_white,"clipboard", sep='\t', row.names=FALSE )
-#7% of Black women, 5% of White Women
-```
 
 ### Poverty Rates
 
@@ -195,44 +224,9 @@ write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )
 
 
 white_Black_df
-
-
-
 ```
-### Educational Attainment
 
-```{r}
-
-white_df <- get_acs_recs(geography = 'county',
-             table.names = c('C15002H'),
-             years=c(2019),
-             acs.type = 'acs5')%>%filter(name=='Region')
-
-
-
-Black_df <- get_acs_recs(geography = 'county',
-             table.names = c('C15002B'),
-             years=c(2019),
-             acs.type = 'acs5')%>%filter(name=='Region')
-
-
-
-white_Black_df<-merge(Black_df, white_df, by='label')%>% 
-  select(estimate.x, moe.x, label, estimate.y, moe.y)
-
-
-
-
-write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )
-
-
-white_Black_df
-
-
-
-```
 ### B25014, Occupants per room
-
 ```{r}
 white_df <- get_acs_recs(geography = 'county',
              table.names = c('B25014H'),
@@ -250,7 +244,6 @@ Black_df <- get_acs_recs(geography = 'county',
 
 
 
-
 ```{r}
 white_Black_df<-merge(Black_df, white_df, by='label')%>% 
   select(estimate.x, moe.x, label, estimate.y, moe.y)
@@ -262,12 +255,9 @@ write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )
 
 
 white_Black_df
-
-
-
 ```
-```{r}
 
+```{r}
 white_df <- get_acs_recs(geography = 'county',
              table.names = c('B25032H'),
              years=c(2019),
@@ -334,7 +324,6 @@ white_Black_df
 
 # Health Insurance
 ```{r}
-
 Black_df <- get_acs_recs(geography = 'county',
              table.names = c('C27001B'),
              years=c(2019),
@@ -356,5 +345,33 @@ white_Black_df
 write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )
 ```
 
+```{r}
+foreign_born<-get_acs_recs(geography = 'tract',
+             table.names = 'B05006',
+             years = 2019,
+             acs.type = 'acs5')
+
+foreign_born_Africa <- foreign_born %>% filter(label=='Estimate!!Total:!!Africa:')
+
+             
+gdb.nm <- paste0("MSSQL:server=",
+"AWS-PROD-SQL\\Sockeye",
+";database=",
+"ElmerGeo",
+";trusted_connection=yes")
+
+spn <-  2285
+wgs84=4326
+
+tract_layer_name <- "dbo.tract2010_nowater"
+
+tract.lyr <- st_read(gdb.nm, tract_layer_name, crs = spn)
+
+
+
+m<-psrccensus::create_tract_map(tract.tbl=foreign_born_Africa, tract.lyr=tract.lyr,  
+                 legend.title='African Foreign Born Population', legend.subtitle='by Census Tract')
+
+```
 
 
