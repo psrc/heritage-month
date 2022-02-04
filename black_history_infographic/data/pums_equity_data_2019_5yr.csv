@@ -1,0 +1,90 @@
+Race,Estimate,MoE,Concept,Variable,Share
+Black or African American,34.17,1.81,Average Age,Average Age,0.839764069796019
+Non-Hispanic White,41.26,0.16,Average Age,Average Age,1.01400835586139
+Black or African American,15400,2200,Average Annual Housing Cost,Average Annual Housing Cost,0.773869346733668
+Non-Hispanic White,20300,700,Average Annual Housing Cost,Average Annual Housing Cost,1.02010050251256
+Black or African American,28346,9612,Disability Status,With a disability,0.121733454153479
+Black or African American,204507,25119,Disability Status,Without a disability,0.878266545846521
+Non-Hispanic White,342669,35471,Disability Status,With a disability,0.129092570798254
+Non-Hispanic White,2311775,38224,Disability Status,Without a disability,0.870907429201746
+Black or African American,16473,9638,Educational Attainment,Associates Degree,0.109446422876581
+Black or African American,25255,9281,Educational Attainment,Bachelors Degree,0.167793930052089
+Black or African American,16432,8516,Educational Attainment,Did not Graduate High School,0.109174019347295
+Black or African American,38051,14234,Educational Attainment,High School Diploma or Equivalent,0.252810407143616
+Black or African American,13365,9177,Educational Attainment,"Masters, Professional or PhD Degree",0.0887969065589455
+Black or African American,40936,12956,Educational Attainment,Some College,0.271978314021473
+Non-Hispanic White,194651,24790,Educational Attainment,Associates Degree,0.0979604305304833
+Non-Hispanic White,547286,32244,Educational Attainment,Bachelors Degree,0.275428187799221
+Non-Hispanic White,82795,17412,Educational Attainment,Did not Graduate High School,0.0416675683442231
+Non-Hispanic White,389450,31822,Educational Attainment,High School Diploma or Equivalent,0.195995343820976
+Non-Hispanic White,318546,30039,Educational Attainment,"Masters, Professional or PhD Degree",0.160312062633962
+Non-Hispanic White,454309,39008,Educational Attainment,Some College,0.228636406871135
+Black or African American,119234,16139,Employment Status,Employed,0.658416716365163
+Black or African American,52472,13257,Employment Status,Not in labor force,0.289753274578667
+Black or African American,9386,7082,Employment Status,Unemployed,0.0518300090561704
+Non-Hispanic White,1437611,39580,Employment Status,Employed,0.64332656717914
+Non-Hispanic White,738067,36522,Employment Status,Not in labor force,0.330282746485806
+Non-Hispanic White,58974,14866,Employment Status,Unemployed,0.0263906863350535
+Black or African American,120388,17675,Essential Workers,Essential Worker,0.82428740645391
+Black or African American,10574,7087,Essential Workers,Non-Essential Worker,0.0723993673442838
+Black or African American,15089,7381,Essential Workers,Somewhat-Essential Worker,0.103313226201806
+Non-Hispanic White,1363542,36753,Essential Workers,Essential Worker,0.777204305242932
+Non-Hispanic White,136518,21416,Essential Workers,Non-Essential Worker,0.0778137947662446
+Non-Hispanic White,254359,28363,Essential Workers,Somewhat-Essential Worker,0.144981899990823
+Black or African American,0.31,,Share of Income Spent on Housing,Share of Income Spent on Housing,0.31
+Non-Hispanic White,0.23,,Share of Income Spent on Housing,Share of Income Spent on Housing,0.23
+Black or African American,70186,12518,Households,Households,0.0650998768235312
+Non-Hispanic White,1007942,23586,Households,Households,0.934900123176469
+Black or African American,49200,15500,Median Household Income,Median Household Income,0.580188679245283
+Non-Hispanic White,88000,4800,Median Household Income,Median Household Income,1.0377358490566
+Black or African American,8.81,,Infant Mortality,Infant Mortality Rate per 1000 Births 2015 to 2019,
+Non-Hispanic White,3.83,,Infant Mortality,Infant Mortality Rate per 1000 Births 2015 to 2019,
+Black or African American,18844,10786,Health Insurance Coverage,No health insurance coverage,0.0809265931725166
+Black or African American,214009,26332,Health Insurance Coverage,With health insurance coverage,0.919073406827483
+Non-Hispanic White,100979,23534,Health Insurance Coverage,No health insurance coverage,0.0380414881609859
+Non-Hispanic White,2553465,27730,Health Insurance Coverage,With health insurance coverage,0.961958511839014
+Black or African American,23129,9619,High Speed Internet Acces per Household,No,0.329538654432508
+Black or African American,47057,11586,High Speed Internet Acces per Household,Yes,0.670461345567492
+Non-Hispanic White,180743,21208,High Speed Internet Acces per Household,No,0.179318849695717
+Non-Hispanic White,827199,28578,High Speed Internet Acces per Household,Yes,0.820681150304283
+Black or African American,7628,5765,Kindergarten Readiness,No schooling completed,0.782278740641985
+Black or African American,2123,2884,Kindergarten Readiness,"Nursery school, preschool",0.217721259358015
+Non-Hispanic White,46805,10144,Kindergarten Readiness,No schooling completed,0.606919176856546
+Non-Hispanic White,30314,8964,Kindergarten Readiness,"Nursery school, preschool",0.393080823143454
+Black or African American,76.6,,Life Expectancy,Rate,
+Non-Hispanic White,80.6,,Life Expectancy,Rate,
+Black or African American,89105,13225,Mode to Work,Auto,0.768179662916505
+Black or African American,5924,4737,Mode to Work,Bike or Walk,0.0510711668606406
+Black or African American,1051,2449,Mode to Work,Other,0.00906073537652485
+Black or African American,15852,8590,Mode to Work,Transit,0.136661062976852
+Black or African American,4063,5443,Mode to Work,Worked from Home,0.0350273718694771
+Non-Hispanic White,1102716,42439,Mode to Work,Auto,0.781816351330848
+Non-Hispanic White,71892,16536,Mode to Work,Bike or Walk,0.0509708221608078
+Non-Hispanic White,9388,4702,Mode to Work,Other,0.00665601288663083
+Non-Hispanic White,124836,18740,Mode to Work,Transit,0.0885076719978106
+Non-Hispanic White,101622,15591,Mode to Work,Worked from Home,0.0720491416239027
+Black or African American,20127,8049,Home Ownership,Own,0.28676659162796
+Black or African American,50059,12625,Home Ownership,Rent,0.71323340837204
+Non-Hispanic White,664815,24560,Home Ownership,Own,0.659576642306799
+Non-Hispanic White,343127,27260,Home Ownership,Rent,0.340423357693201
+Black or African American,232853,25549,Population,Population,0.0806474013584332
+Non-Hispanic White,2654444,16033,Population,Population,0.919352598641567
+Black or African American,2.38,0.45,Average Household Size,Average Household Size,1.05309734513274
+Non-Hispanic White,2.25,0.07,Average Household Size,Average Household Size,0.995575221238938
+Black or African American,31.17,5.76,Average Travel Time to Work,Average Travel Time to Work,0.996164908916587
+Non-Hispanic White,31.3,1.18,Average Travel Time to Work,Average Travel Time to Work,1.00031959092362
+Black or African American,43536,10917,Home Type,Apartment,0.620294645655829
+Black or African American,263,846,Home Type,Mobile Home,0.0037471860484997
+Black or African American,26387,8116,Home Type,Single-Family,0.375958168295672
+Non-Hispanic White,278816,23666,Home Type,Apartment,0.276619091177865
+Non-Hispanic White,38026,8885,Home Type,Mobile Home,0.0377263771129688
+Non-Hispanic White,1532,2100,Home Type,Other,0.00151992872605765
+Non-Hispanic White,689568,26637,Home Type,Single-Family,0.684134602983108
+Black or African American,425900,138200,Median Home Value,Median Home Value,0.813717997707298
+Non-Hispanic White,526300,25100,Median Home Value,Median Home Value,1.00554069545281
+Black or African American,30647,10258,Vehicles per Household,1 vehicle,0.436654033567948
+Black or African American,27146,9223,Vehicles per Household,2 or more vehicles,0.386772290770239
+Black or African American,12393,8224,Vehicles per Household,No vehicles,0.176573675661813
+Non-Hispanic White,315993,26306,Vehicles per Household,1 vehicle,0.313503157919801
+Non-Hispanic White,618156,24824,Vehicles per Household,2 or more vehicles,0.613285288240792
+Non-Hispanic White,73793,15914,Vehicles per Household,No vehicles,0.0732115538394074
