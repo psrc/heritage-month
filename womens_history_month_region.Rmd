@@ -1,0 +1,133 @@
+---
+title: "Womens History Month ACS/PUMS Data"
+author: "suzanne"
+date: "3/2022"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Notes for Women's History Month
+
+```{r load_libraries}
+library(devtools)
+library(sf)
+library(dplyr)
+library(psrccensus)
+library(ggplot2)
+library(tidycensus)
+library(tidyr)
+Sys.getenv("CENSUS_API_KEY")
+```
+
+
+```{r}
+inc_sex_srvyr_obj<-get_psrc_pums(span=5, dyear=2019, level="p", vars=c("SEX","PINCP","WKHP"))%>% filter(PINCP>0 & WKHP>0)
+
+inc_sex_all_hours<-psrc_pums_median(inc_sex_srvyr_obj, target_var='PINCP',group_vars = "SEX")
+
+write.table(inc_sex_all_hours,"clipboard-16384", sep='\t', row.names=FALSE )
+```
+
+
+#
+```{r}
+inc_sex_srvyr_obj<-get_psrc_pums(span=5, dyear=2019, level="p", vars=c("SEX","PINCP","WKHP"))%>% filter(PINCP>0 & WKHP>30)
+
+inc_sex<-psrc_pums_median(inc_sex_srvyr_obj, target_var='PINCP',group_vars = "SEX")
+
+write.table(inc_sex,"clipboard-16384", sep='\t', row.names=FALSE )
+```
+
+```{r}
+inc_sex_srvyr_obj<-get_psrc_pums(span=5, dyear=2019, level="p", vars=c("SEX","PINCP","WKHP", 'RAC1P'))%>% filter(PINCP>0 & WKHP>30)
+
+inc_sex<-psrc_pums_median(inc_sex_srvyr_obj, target_var='PINCP',group_vars = c("SEX",'RAC1P'))%>%filter(COUNTY=='Region')
+
+write.table(inc_sex,"clipboard-16384", sep='\t', row.names=FALSE )
+```
+
+
+```{r}
+employment_status_sex_srvyr_obj<-get_psrc_pums(span=5, dyear=2019, level="p", vars=c("SEX","ESR", 'WKHP'))
+
+emp_sex<-psrc_pums_count(employment_status_sex_srvyr_obj,group_vars = c("SEX", "ESR"))%>%filter(COUNTY=='Region')
+
+write.table(emp_sex,"clipboard-16384", sep='\t', row.names=FALSE )
+
+```
+```{r}
+employment_status_sex_srvyr_obj_pt<-get_psrc_pums(span=5, dyear=2019, level="p", vars=c("SEX","ESR", 'WKHP'))%>%filter(WKHP<30)
+
+emp_sex_part_time<-psrc_pums_count(employment_status_sex_srvyr_obj, group_vars = c("SEX","ESR"))%>%filter(COUNTY=='Region')
+
+write.table(emp_sex_part_time,"clipboard-16384", sep='\t', row.names=FALSE )
+```
+
+```{r}
+employment_status_sex_srvyr_obj_ft<-get_psrc_pums(span=5, dyear=2019, level="p", vars=c("SEX","ESR", 'WKHP'))%>%filter(WKHP>30)
+
+emp_sex_full_time<-psrc_pums_count(employment_status_sex_srvyr_obj_ft, group_vars = c("SEX",'ESR'))%>%filter(COUNTY=='Region')
+
+write.table(emp_sex_full_time,"clipboard-16384", sep='\t', row.names=FALSE )
+```
+
+
+```{r}
+inc_sex_srvyr_obj<-get_psrc_pums(span=5, dyear=2019, level="p", vars=c("SEX","PINCP","WKHP", 'HISP'))%>% filter(PINCP>0 & WKHP>30)
+
+inc_sex_hisp_race<- inc_sex_srvyr_obj%>%
+  mutate(HISPSIMPLE=ifelse(HISP!='Not Spanish/Hispanic/Latino', 'Latinx', 'Not Latinx'))
+
+inc_sex<-psrc_pums_median(inc_sex_hisp_race, target_var='PINCP',group_vars = c("SEX",'HISPSIMPLE'))%>%filter(COUNTY=='Region')
+
+write.table(inc_sex,"clipboard-16384", sep='\t', row.names=FALSE )
+```
+
+```{r}
+inc_sex_srvyr_obj<-get_psrc_pums(span=5, dyear=2019, level="p", vars=c("SEX","PINCP","WKHP", 'RAC1P'))%>% filter(PINCP>0 & WKHP>30)
+
+inc_sex_race<-psrc_pums_median(inc_sex_srvyr_obj, target_var='PINCP',group_vars = c("SEX",'RAC1P'))%>%filter(COUNTY=='Region')
+
+write.table(inc_sex_race,"clipboard-16384", sep='\t', row.names=FALSE )
+```
+### Job Sector
+```{r}
+jobs_df <- get_acs_recs(geography = 'county',
+             table.names = c('B24012'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')%>% arrange(label, name)%>%select(name, label, estimate, moe)
+jobs_df
+write.table(jobs_df,"clipboard-16384", sep='\t', row.names=FALSE )
+```
+
+
+
+Map of difference in median income men vs women
+
+### Median Earnings Tract
+```{r}
+earnings_df_tract <- get_acs_recs(geography = 'tract',
+             table.names = c('B20017'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(label=="Estimate!!Median earnings in the past 12 months (in 2019 inflation-adjusted dollars) --!!Total (dollars):!!Male --!!Total (dollars)!!Worked full-time, year-round in the past 12 months (dollars)" | label=='Estimate!!Median earnings in the past 12 months (in 2019 inflation-adjusted dollars) --!!Total (dollars):!!Female --!!Total (dollars)!!Worked full-time, year-round in the past 12 months (dollars)')
+
+
+```
+``
+
+
+###Educational attainment
+```{r}
+edu_df <- get_acs_recs(geography = 'county',
+             table.names = c('B15002'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')%>% arrange(label, name)%>%select(name, label, estimate, moe)
+edu_df
+write.table(edu_df,"clipboard-16384", sep='\t', row.names=FALSE )
+```

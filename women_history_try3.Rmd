@@ -1,0 +1,72 @@
+---
+title: "Womens History Month ACS/PUMS Data"
+author: "suzanne"
+date: "3/2022"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Notes for Women's History Month
+
+```{r load_libraries}
+library(devtools)
+library(sf)
+library(dplyr)
+library(psrccensus)
+library(ggplot2)
+library(tidycensus)
+library(tidyr)
+Sys.getenv("CENSUS_API_KEY")
+```
+
+
+```{r}
+inc_sex_srvyr_obj<-get_psrc_pums(span=5, dyear=2019, level="p", vars=c("SEX","PERNP","WKHP"))%>% filter(WKHP>35)
+
+inc_sex<-psrc_pums_median(inc_sex_srvyr_obj, target_var='PERNP',group_vars = "SEX")%>%pivot_wider(names_from= SEX, values_from=c(PERNP_median, PERNP_median_moe))
+```
+
+
+
+```{r}
+inc_sex_srvyr_obj<-get_psrc_pums(span=5, dyear=2019, level="p", vars=c("SEX","PERNP","WKHP", 'RAC1P'))%>% filter(PERNP>0 & WKHP>35)%>% mutate(RAC1P=as.factor(case_when(grepl("American Indian|Alaska Native",RAC1P) ~"American Indian and Alaska Native alone",
+TRUE ~as.character(RAC1P))))
+
+inc_sex<-psrc_pums_median(inc_sex_srvyr_obj, target_var='PERNP',group_vars = c("SEX",'RAC1P'))%>%filter(COUNTY=='Region')%>%pivot_wider(names_from= SEX, values_from=c(PERNP_median, PERNP_median_moe))
+
+write.table(inc_sex,"clipboard-16384", sep='\t', row.names=FALSE )
+```
+
+```{r}
+employment_status_sex_srvyr_obj<-get_psrc_pums(span=5, dyear=2019, level="p", vars=c("SEX","ESR", 'WKHP'))
+
+
+
+emp_sex<-psrc_pums_count(employment_status_sex_srvyr_obj,group_vars = c("SEX", "ESR"))%>%filter(COUNTY=='Region')
+
+write.table(emp_sex,"clipboard-16384", sep='\t', row.names=FALSE )
+
+```
+
+
+```{r}
+jobs_df <- get_acs_recs(geography = 'county',
+             table.names = c('C24030'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')%>% arrange(label, name)%>%select(name, label, estimate, moe)
+jobs_df
+write.table(jobs_df,"clipboard-16384", sep='\t', row.names=FALSE )
+```
+
+```{r}
+inc_sex_srvyr_obj<-get_psrc_pums(span=5, dyear=2019, level="p", vars=c("SEX","PERNP","WKHP", "INDP"))%>% filter(WKHP>35)%>% mutate(short_industry=str_extract(INDP,"[aA-zZ]{1,4}" ))
+
+inc_sex<-psrc_pums_median(inc_sex_srvyr_obj, target_var='PERNP',group_vars = c("SEX", "short_industry"))%>%filter(COUNTY=='Region')%>%pivot_wider(names_from= c(SEX), values_from=c(PERNP_median, PERNP_median_moe))
+write.table(inc_sex,"clipboard-16384", sep='\t', row.names=FALSE )
+```

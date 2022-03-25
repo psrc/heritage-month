@@ -80,6 +80,9 @@ black_2020_county<-black_2020 %>% filter(GEOID %in% c('0500000US53033', '0500000
 
 black_2020_county_all<-black_2020 %>% filter(GEOID %in% c('0500000US53033', '0500000US53035','0500000US53053', '0500000US53061')) 
 
+black_2020_region<-black_2020_county_all %>% replace(is.na(.), 0) %>%
+   mutate(sum = rowSums(across(where(is.numeric))))
+
 
 write.table(black_2020_county,"clipboard", sep='\t', row.names=FALSE )
 

@@ -1,0 +1,108 @@
+---
+title: "Womens History Month ACS/PUMS Data"
+author: "suzanne"
+date: "3/2022"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Notes for Women's History Month
+
+```{r load_libraries}
+library(devtools)
+library(sf)
+library(dplyr)
+library(psrccensus)
+library(ggplot2)
+library(tidycensus)
+Sys.getenv("CENSUS_API_KEY")
+```
+
+What can we find?
+```{r}
+var_list<- load_variables(2019, "acs5", cache = TRUE)
+```
+
+
+### Median Earnings
+```{r}
+earnings_df <- get_acs_recs(geography = 'county',
+             table.names = c('B20017'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+earnings_df
+write.table(earnings_df,"clipboard", sep='\t', row.names=FALSE )
+```
+
+### poverty
+
+```{r}
+
+poverty_df <- get_acs_recs(geography = 'county',
+             table.names = c('B17001'),
+             years=c(2019),
+             acs.type = 'acs5')%>% filter(label=='Estimate!!Total:!!Income in the past 12 months below poverty level:!!Male:' |label=='Estimate!!Total:!!Income in the past 12 months at or above poverty level:!!Male:'|label=='Estimate!!Total:!!Income in the past 12 months below poverty level:!!Female:' |label=='Estimate!!Total:!!Income in the past 12 months at or above poverty level:!!Female:')
+
+poverty_df
+write.table(poverty_df,"clipboard-16384", sep='\t', row.names=FALSE )
+
+```
+### Median Earnings
+```{r}
+earnings_df <- get_acs_recs(geography = 'county',
+             table.names = c('B19325'),
+             years=c(2019),
+             acs.type = 'acs5')%>% filter(grepl('Worked full-time, year-round in the past 12 months',label))%>%filter(label=='Estimate!!Total:!!Male:!!Worked full-time, year-round in the past 12 months:'|label=='Estimate!!Total:!!Male:!!Worked full-time, year-round in the past 12 months:!!With income:!!$100,000 or more'|label==
+'Estimate!!Total:!!Female:!!Worked full-time, year-round in the past 12 months:'| label=='Estimate!!Total:!!Female:!!Worked full-time, year-round in the past 12 months:!!With income:!!$100,000 or more')
+
+```
+
+
+### Job Sector
+```{r}
+jobs_df <- get_acs_recs(geography = 'county',
+             table.names = c('B24012'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name!='Region')%>% arrange(label, name)%>%select(name, label, estimate, moe)
+
+jobs_df
+write.table(jobs_df,"clipboard-16384", sep='\t', row.names=FALSE )
+```
+
+
+```{r}
+
+jobs_df
+write.table(jobs_df,"clipboard-16384", sep='\t', row.names=FALSE )
+```
+#
+```{r}
+inc_sex_srvyr_obj<-get_psrc_pums(span=5, dyear=2019, level="p", vars=c("SEX","PINCP"))
+inc_sex<-psrc_pums_median(inc_sex_srvyr_obj, target_var='PINCP',group_vars = "SEX")
+
+write.table(inc_sex,"clipboard-16384", sep='\t', row.names=FALSE )
+
+```
+
+```{r}
+inc_sex_srvyr_obj<-get_psrc_pums(span=5, dyear=2019, level="p", vars=c("SEX","PINCP",'WK))%>%filter()
+inc_sex<-psrc_pums_median(inc_sex_srvyr_obj, target_var='PINCP',group_vars = "SEX")
+
+write.table(inc_sex,"clipboard-16384", sep='\t', row.names=FALSE )
+
+```
+
+```{r}
+inc_sex_srvyr_obj<-get_psrc_pums(span=5, dyear=2019, level="p", vars=c("SEX","WAGP","RAC1P"))
+inc_sex<-psrc_pums_median(inc_sex_srvyr_obj, target_var='WAGP',group_vars = c("SEX", 'RAC1P'))
+
+write.table(inc_sex,"clipboard-16384", sep='\t', row.names=FALSE )
+
+```
