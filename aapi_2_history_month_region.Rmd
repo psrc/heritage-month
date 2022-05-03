@@ -1,0 +1,629 @@
+---
+title: "Womens History Month ACS/PUMS Data"
+author: "suzanne"
+date: "3/2022"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Notes for Asian American Pacific Islander month
+
+```{r load_libraries}
+library(devtools)
+library(sf)
+library(dplyr)
+library(psrccensus)
+library(ggplot2)
+library(tidycensus)
+library(tidyr)
+Sys.getenv("CENSUS_API_KEY")
+```
+```{r}
+acs_5_vars<-load_variables(2020, 'acs5', cache=TRUE)
+
+```
+
+
+	
+B01002D_001 Median Age
+	
+B02015    specific origins
+
+B03002 Hispanic
+	
+B08105 Mode to Work
+	
+B10051 Grandparents
+	
+B17001 Poverty
+	
+C15002 Education
+	
+B16005 English proficiency
+
+RAC1P
+RAC2P
+RAC3P detailed race in combination
+RACASN- alone or in combination
+
+
+HINCP
+
+HUGCL
+HUPAC
+
+
+### Educational Attainment
+compare 2020 and 2019 5 year
+```{r}
+
+
+
+
+Asian_df <- get_acs_recs(geography = 'county',
+             table.names = c('C15002D'),
+             years=c(2020),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+PI_df <- get_acs_recs(geography = 'county',
+             table.names = c('C15002E'),
+             years=c(2020),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+white_df <- get_acs_recs(geography = 'county',
+             table.names = c('C15002H'),
+             years=c(2020),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+
+Asian_PI_df<-merge(Asian_df, PI_df, by='label')
+Asian_PI_white_df<-merge(Asian_PI_df, white_df, by='label')
+
+
+Asian_PI_white_df_formatted<-Asian_PI_white_df %>% select(label,estimate.x, moe.x, estimate.y, moe.y, estimate.y, moe.y, estimate, moe) %>% rename(Asian_Educational_Attainment=estimate.x, Asian_Educational_Attainment_MOE=moe.x, Pacific_Islander_Educational_Attainment=estimate.y, Pacific_Islander_Educational_Attainment_MOE=moe.y, White_Educational_Attainment=estimate, White_Educational_Attainment_MOE=moe)
+
+
+
+
+
+write.table(Asian_PI_white_df_formatted,"clipboard", sep='\t', row.names=FALSE )
+
+
+Asian_PI_white_df_formatted
+
+
+```
+
+```{r}
+
+
+
+
+Asian_df <- get_acs_recs(geography = 'county',
+             table.names = c('C15002D'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+PI_df <- get_acs_recs(geography = 'county',
+             table.names = c('C15002E'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+white_df <- get_acs_recs(geography = 'county',
+             table.names = c('C15002H'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+
+Asian_PI_df<-merge(Asian_df, PI_df, by='label')
+Asian_PI_white_df<-merge(Asian_PI_df, white_df, by='label')
+
+
+Asian_PI_white_df_formatted<-Asian_PI_white_df %>% select(label,estimate.x, moe.x, estimate.y, moe.y, estimate.y, moe.y, estimate, moe) %>% rename(Asian_Educational_Attainment=estimate.x, Asian_Educational_Attainment_MOE=moe.x, Pacific_Islander_Educational_Attainment=estimate.y, Pacific_Islander_Educational_Attainment_MOE=moe.y, White_Educational_Attainment=estimate, White_Educational_Attainment_MOE=moe)
+
+
+
+
+
+write.table(Asian_PI_white_df_formatted,"clipboard", sep='\t', row.names=FALSE )
+
+
+Asian_PI_white_df_formatted
+
+
+```
+
+
+by county
+```{r}
+
+
+
+
+Asian_df <- get_acs_recs(geography = 'county',
+             table.names = c('C15002D'),
+             years=c(2020),
+             acs.type = 'acs5')
+
+PI_df <- get_acs_recs(geography = 'county',
+             table.names = c('C15002E'),
+             years=c(2020),
+             acs.type = 'acs5')
+
+white_df <- get_acs_recs(geography = 'county',
+             table.names = c('C15002H'),
+             years=c(2020),
+             acs.type = 'acs5')
+
+
+Asian_PI_df<-merge(Asian_df, PI_df, by=c('label', 'name'))
+Asian_PI_white_df<-merge(Asian_PI_df, white_df, by=c('label', 'name'))
+
+
+Asian_PI_white_df_formatted<-Asian_PI_white_df %>% select(name,label,estimate.x, moe.x, estimate.y, moe.y, estimate.y, moe.y, estimate, moe) %>% rename(Asian_Educational_Attainment=estimate.x, Asian_Educational_Attainment_MOE=moe.x, Pacific_Islander_Educational_Attainment=estimate.y, Pacific_Islander_Educational_Attainment_MOE=moe.y, White_Educational_Attainment=estimate, White_Educational_Attainment_MOE=moe)
+
+
+
+
+
+write.table(Asian_PI_white_df_formatted,"clipboard", sep='\t', row.names=FALSE )
+
+
+Asian_PI_white_df_formatted
+
+
+### Where were people born?
+```
+2020
+```{r}
+
+
+nativity_df_Asian<- get_acs_recs(geography = 'county',
+             table.names = c('B06004D'),
+             years=c(2020),
+             acs.type = 'acs5')
+
+
+
+nativity_df_Asian_formatted<-nativity_df_Asian 
+
+nativity_df_Asian_formatted
+write.table(nativity_df_Asian_formatted,"clipboard", sep='\t', row.names=FALSE )
+
+```
+2019
+```{r}
+
+
+nativity_df_Asian<- get_acs_recs(geography = 'county',
+             table.names = c('B06004D'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+
+
+nativity_df_Asian_formatted<-nativity_df_Asian 
+
+nativity_df_Asian_formatted
+write.table(nativity_df_Asian_formatted,"clipboard", sep='\t', row.names=FALSE )
+
+```
+```{r}
+nativity_df_PI<- get_acs_recs(geography = 'county',
+             table.names = c('B06004E'),
+             years=c(2020),
+             acs.type = 'acs5')
+
+
+
+nativity_df_PI_formatted<-nativity_df_PI
+
+nativity_df_PI_formatted
+write.table(nativity_df_PI_formatted,"clipboard", sep='\t', row.names=FALSE )
+
+
+```
+```{r}
+nativity_df_PI<- get_acs_recs(geography = 'county',
+             table.names = c('B06004E'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+
+
+nativity_df_PI_formatted<-nativity_df_PI
+
+nativity_df_PI_formatted
+write.table(nativity_df_PI_formatted,"clipboard", sep='\t', row.names=FALSE )
+
+
+```
+
+### Median Income
+B19013D
+```{r}
+
+
+
+
+Asian_df <- get_acs_recs(geography = 'county',
+             table.names = c('B19013D'),
+             years=c(2020),
+             acs.type = 'acs5')
+PI_df <- get_acs_recs(geography = 'county',
+             table.names = c('B19013E'),
+             years=c(2020),
+             acs.type = 'acs5')
+
+white_df <- get_acs_recs(geography = 'county',
+             table.names = c('B19013H'),
+             years=c(2020),
+             acs.type = 'acs5')
+
+
+Asian_PI_df<-merge(Asian_df, PI_df, by=c('label', 'name'))
+Asian_PI_white_df<-merge(Asian_PI_df, white_df, by=c('label', 'name'))
+
+
+Asian_PI_white_df_formatted<-Asian_PI_white_df %>% select(label,name, estimate.x, moe.x, estimate.y, moe.y, estimate.y, moe.y, estimate, moe) %>% rename(Asian_Educational_Attainment=estimate.x, Asian_Median_Income_MOE=moe.x, Pacific_Islander_Median_Income=estimate.y, Pacific_Islander_Median_Income_MOE=moe.y, White_Median_Income=estimate, White_Median_Income_MOE=moe)
+
+
+
+
+
+write.table(Asian_PI_white_df_formatted,"clipboard", sep='\t', row.names=FALSE )
+
+
+Asian_PI_white_df_formatted
+```
+### Median Income
+B19013D
+2019
+```{r}
+
+
+
+
+Asian_df <- get_acs_recs(geography = 'county',
+             table.names = c('B19013D'),
+             years=c(2019),
+             acs.type = 'acs5')
+PI_df <- get_acs_recs(geography = 'county',
+             table.names = c('B19013E'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+white_df <- get_acs_recs(geography = 'county',
+             table.names = c('B19013H'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+
+Asian_PI_df<-merge(Asian_df, PI_df, by=c('label', 'name'))
+Asian_PI_white_df<-merge(Asian_PI_df, white_df, by=c('label', 'name'))
+
+
+Asian_PI_white_df_formatted<-Asian_PI_white_df %>% select(label,name, estimate.x, moe.x, estimate.y, moe.y, estimate.y, moe.y, estimate, moe) %>% rename(Asian_Educational_Attainment=estimate.x, Asian_Median_Income_MOE=moe.x, Pacific_Islander_Median_Income=estimate.y, Pacific_Islander_Median_Income_MOE=moe.y, White_Median_Income=estimate, White_Median_Income_MOE=moe)
+
+
+
+
+
+write.table(Asian_PI_white_df_formatted,"clipboard", sep='\t', row.names=FALSE )
+
+
+Asian_PI_white_df_formatted
+```
+## Homeownership
+
+```{r}
+
+
+homeownership_black<-get_acs_recs(geography = 'county',
+             table.names = c('B25003B'),
+             years=c(2019),
+             acs.type = 'acs1')
+
+homeownership_white<-get_acs_recs(geography = 'county',
+             table.names = c('B25003H'),
+             years=c(2019),
+             acs.type = 'acs1')
+
+
+homeownership_df_black_white<- merge(homeownership_black, homeownership_white, by=c('label','name'))
+write.table(homeownership_df_black_white,"clipboard", sep='\t', row.names=FALSE )
+
+homeownership_df_black_white
+
+```
+
+### Median Age by Black and All
+
+```{r}
+
+Black_age_df<-get_acs_recs(geography = 'county',
+             table.names = c('B01002B'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+
+white_age_df <- get_acs_recs(geography = 'county',
+             table.names = c('B01002H'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+
+white_Black_df<-merge(Black_age_df, white_age_df, by=c('name','label'))%>% filter(label=='Estimate!!Median age --!!Total:')%>%
+  select(name,estimate.x, estimate.y, )%>% rename('County'='name', 'Black population' ='estimate.x', 'White Population'='estimate.y')
+
+write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )
+white_Black_df
+
+```
+
+
+
+### Poverty Rates
+
+```{r}
+
+
+poverty_df_Black<- get_acs_recs(geography = 'county',
+             table.names = c('B17020B'),
+             years=c(2019),
+             acs.type = 'acs5')
+poverty_df_white <- get_acs_recs(geography = 'county',
+             table.names = c('B17020H'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+poverty_df_white<- poverty_df_white %>% filter(label=='Estimate!!Total:' | label=='Estimate!!Total:!!Income in the past 12 months below poverty level:')%>%select(name, estimate,moe,label)%>%tidyr::pivot_wider(names_from=label,values_from=c(estimate,moe) )
+
+poverty_df_black<- poverty_df_Black %>% filter(label=='Estimate!!Total:' | label=='Estimate!!Total:!!Income in the past 12 months below poverty level:')%>%select(name, estimate,moe,label)%>%tidyr::pivot_wider(names_from=label,values_from=c(estimate,moe) )
+
+poverty_df_black_white<- merge(poverty_df_black, poverty_df_white, by='name')
+
+write.table(poverty_df_black_white,"clipboard", sep='\t', row.names=FALSE )
+
+```
+
+
+
+### Means of Transportation to Work
+
+```{r}
+
+white_transport_df <- get_acs_recs(geography = 'county',
+             table.names = c('B08105H'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+
+
+asian_transport_df <- get_acs_recs(geography = 'county',
+             table.names = c('B08105D'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+
+
+white_asian_df<-merge(asian_transport_df, white_transport_df, by='label')%>% 
+  select(estimate.x, moe.x, label, estimate.y, moe.y)
+
+
+
+
+write.table(white_asian_df,"clipboard", sep='\t', row.names=FALSE )
+
+
+white_asian_df
+```
+
+### Means of Transportation to Work
+
+```{r}
+
+white_transport_df <- get_acs_recs(geography = 'county',
+             table.names = c('B08105A'),
+             years=c(2020),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+
+
+pi_transport_df <- get_acs_recs(geography = 'county',
+             table.names = c('B08105E'),
+             years=c(2020),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+
+
+white_pi_df<-merge(pi_transport_df, white_transport_df, by='label')%>% 
+  select(estimate.x, moe.x, label, estimate.y, moe.y)
+
+
+
+
+write.table(white_pi_df,"clipboard", sep='\t', row.names=FALSE )
+
+white_pi_df
+```
+
+
+### B25014, Occupants per room
+```{r}
+white_df <- get_acs_recs(geography = 'county',
+             table.names = c('B25014H'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+
+
+Black_df <- get_acs_recs(geography = 'county',
+             table.names = c('B25014B'),
+             years=c(2019),
+             acs.type = 'acs5')
+```
+
+
+
+
+```{r}
+white_Black_df<-merge(Black_df, white_df, by='label')%>% 
+  select(estimate.x, moe.x, label, estimate.y, moe.y)
+
+
+
+
+write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )
+
+
+white_Black_df
+```
+
+```{r}
+white_df <- get_acs_recs(geography = 'county',
+             table.names = c('B25032H'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+
+
+Black_df <- get_acs_recs(geography = 'county',
+             table.names = c('B25032B'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+white_Black_df<-merge(Black_df, white_df, by='label')%>% 
+  select(estimate.x, moe.x, label, estimate.y, moe.y)
+
+write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )%>%filter(name=='Region')
+```
+
+# Computers at home
+```{r}
+Black_df <- get_acs_recs(geography = 'county',
+             table.names = c('B28009B'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+
+white_df <- get_acs_recs(geography = 'county',
+             table.names = c('B28009H'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+
+
+
+white_Black_df<-merge(Black_df, white_df, by='label')%>% 
+  select(estimate.x, moe.x, label, estimate.y, moe.y)
+
+write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )%>%filter(name=='Region')
+```
+# Job sector
+
+```{r}
+Black_df <- get_acs_recs(geography = 'county',
+             table.names = c('C24010B'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+
+white_df <- get_acs_recs(geography = 'county',
+             table.names = c('C24010H'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+
+
+
+white_Black_df<-merge(Black_df, white_df, by='label')%>% 
+  select(estimate.x, moe.x, label, estimate.y, moe.y)
+
+write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )
+white_Black_df
+```
+
+
+# Health Insurance
+```{r}
+Black_df <- get_acs_recs(geography = 'county',
+             table.names = c('C27001B'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+
+white_df <- get_acs_recs(geography = 'county',
+             table.names = c('C27001H'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+
+
+
+white_Black_df<-merge(Black_df, white_df, by='label')%>% 
+  select(estimate.x, moe.x, label, estimate.y, moe.y)
+white_Black_df
+
+write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )
+```
+
+```{r}
+foreign_born<-get_acs_recs(geography = 'tract',
+             table.names = 'B05006',
+             years = 2019,
+             acs.type = 'acs5')
+
+foreign_born_Africa <- foreign_born %>% filter(label=='Estimate!!Total:!!Africa:')
+
+             
+gdb.nm <- paste0("MSSQL:server=",
+"AWS-PROD-SQL\\Sockeye",
+";database=",
+"ElmerGeo",
+";trusted_connection=yes")
+
+spn <-  2285
+wgs84=4326
+
+tract_layer_name <- "dbo.tract2010_nowater"
+
+tract.lyr <- st_read(gdb.nm, tract_layer_name, crs = spn)
+
+
+
+m<-psrccensus::create_tract_map(tract.tbl=foreign_born_Africa, tract.lyr=tract.lyr,  
+                 legend.title='African Foreign Born Population', legend.subtitle='by Census Tract')
+
+
+
+
+Map of difference in median income men vs women
+
+### Median Earnings Tract
+```{r}
+earnings_df_tract <- get_acs_recs(geography = 'tract',
+             table.names = c('B20017'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(label=="Estimate!!Median earnings in the past 12 months (in 2019 inflation-adjusted dollars) --!!Total (dollars):!!Male --!!Total (dollars)!!Worked full-time, year-round in the past 12 months (dollars)" | label=='Estimate!!Median earnings in the past 12 months (in 2019 inflation-adjusted dollars) --!!Total (dollars):!!Female --!!Total (dollars)!!Worked full-time, year-round in the past 12 months (dollars)')
+
+
+```
+``
+
+
+###Educational attainment
+```{r}
+edu_df <- get_acs_recs(geography = 'county',
+             table.names = c('B15002'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')%>% arrange(label, name)%>%select(name, label, estimate, moe)
+edu_df
+write.table(edu_df,"clipboard-16384", sep='\t', row.names=FALSE )
+```

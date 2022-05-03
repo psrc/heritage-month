@@ -1,0 +1,110 @@
+---
+title: "comparing_acs_datasets_5yr"
+author: "suzanne"
+date: "5/3/2022"
+output: html_document
+---
+
+```{r load_libraries}
+library(devtools)
+library(sf)
+library(dplyr)
+library(psrccensus)
+library(ggplot2)
+library(tidycensus)
+library(tidyr)
+Sys.getenv("CENSUS_API_KEY")
+
+acs_5_vars<-load_variables(2020, 'acs5', cache=TRUE)
+
+```
+### Count subgroups
+Table B02015
+```{r}
+Asian_selected_groups<-get_acs_recs(geography = 'county',
+             table.names = c('B02015'),
+             years=c(2020),
+             acs.type = 'acs5')%>%filter(name=='Region')
+Asian_selected_groups
+
+```
+
+### Educational Attainment
+```{r}
+
+
+
+
+Asian_df <- get_acs_recs(geography = 'county',
+             table.names = c('C15002D'),
+             years=c(2020),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+PI_df <- get_acs_recs(geography = 'county',
+             table.names = c('C15002E'),
+             years=c(2020),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+white_df <- get_acs_recs(geography = 'county',
+             table.names = c('C15002H'),
+             years=c(2020),
+             acs.type = 'acs5')%>%filter(name=='Region')
+
+
+Asian_PI_df<-merge(Asian_df, PI_df, by='label')
+Asian_PI_white_df<-merge(Asian_PI_df, white_df, by='label')
+
+
+Asian_PI_white_df_formatted<-Asian_PI_white_df %>% select(label,estimate.x, moe.x, estimate.y, moe.y, estimate.y, moe.y, estimate, moe) %>% rename(Asian_Educational_Attainment=estimate.x, Asian_Educational_Attainment_MOE=moe.x, Pacific_Islander_Educational_Attainment=estimate.y, Pacific_Islander_Educational_Attainment_MOE=moe.y, White_Educational_Attainment=estimate, White_Educational_Attainment_MOE=moe)
+
+
+
+
+
+write.table(Asian_PI_white_df_formatted,"clipboard", sep='\t', row.names=FALSE )
+
+
+Asian_PI_white_df_formatted
+
+
+```
+
+
+### Median Income
+B19013D
+```{r}
+
+
+
+
+Asian_df <- get_acs_recs(geography = 'county',
+             table.names = c('B19013D'),
+             years=c(2020),
+             acs.type = 'acs5')
+PI_df <- get_acs_recs(geography = 'county',
+             table.names = c('B19013E'),
+             years=c(2020),
+             acs.type = 'acs5')
+
+white_df <- get_acs_recs(geography = 'county',
+             table.names = c('B19013H'),
+             years=c(2020),
+             acs.type = 'acs5')
+
+
+Asian_PI_df<-merge(Asian_df, PI_df, by=c('label', 'name'))
+Asian_PI_white_df<-merge(Asian_PI_df, white_df, by=c('label', 'name'))
+
+
+Asian_PI_white_df_formatted<-Asian_PI_white_df %>% select(label,name, estimate.x, moe.x, estimate.y, moe.y, estimate.y, moe.y, estimate, moe) %>% rename(Asian_Educational_Attainment=estimate.x, Asian_Median_Income_MOE=moe.x, Pacific_Islander_Median_Income=estimate.y, Pacific_Islander_Median_Income_MOE=moe.y, White_Median_Income=estimate, White_Median_Income_MOE=moe)
+
+
+
+
+
+write.table(Asian_PI_white_df_formatted,"clipboard", sep='\t', row.names=FALSE )
+
+
+Asian_PI_white_df_formatted
+```
+
