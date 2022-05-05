@@ -48,15 +48,17 @@ C15002 Education
 B16005 English proficiency
 
 RAC1P
-RAC2P
+RAC2P - inlcudes alone detailed races
 RAC3P detailed race in combination
 RACASN- alone or in combination
 
+PERNP- earnings
 
 HINCP
 
 HUGCL
 HUPAC
+MULTG
 
 
 ### Educational Attainment
@@ -626,4 +628,46 @@ edu_df <- get_acs_recs(geography = 'county',
              acs.type = 'acs5')%>%filter(name=='Region')%>% arrange(label, name)%>%select(name, label, estimate, moe)
 edu_df
 write.table(edu_df,"clipboard-16384", sep='\t', row.names=FALSE )
+```
+
+
+
+
+```{r}
+inc_race_srvyr_obj<-get_psrc_pums(span=5, dyear=2019, level="p", vars=c("PERNP","RAC2P", "WKHP"))%>% filter(WKHP>10)
+
+inc_race<-psrc_pums_median(inc_race_srvyr_obj, stat_var="PERNP",group_vars = c("RAC2P"))
+#%>%filter(COUNTY=='Region')%>%pivot_wider(names_from= RAC2P, values_from=c(PERNP_median, PERNP_median_moe))
+
+write.table(inc_race,"clipboard-16384", sep='\t', row.names=FALSE )
+
+```
+
+```{r}
+employment_status_sex_srvyr_obj<-get_psrc_pums(span=5, dyear=2019, level="p", vars=c("SEX","ESR", 'WKHP'))
+
+
+
+emp_sex<-psrc_pums_count(employment_status_sex_srvyr_obj,group_vars = c("SEX", "ESR"))%>%filter(COUNTY=='Region')
+
+write.table(emp_sex,"clipboard-16384", sep='\t', row.names=FALSE )
+
+```
+
+
+```{r}
+jobs_df <- get_acs_recs(geography = 'county',
+             table.names = c('C24030'),
+             years=c(2019),
+             acs.type = 'acs5')%>%filter(name=='Region')%>% arrange(label, name)%>%select(name, label, estimate, moe)
+jobs_df
+write.table(jobs_df,"clipboard-16384", sep='\t', row.names=FALSE )
+```
+
+```{r}
+inc_sex_srvyr_obj<-get_psrc_pums(span=5, dyear=2019, level="p", vars=c("SEX","PERNP","WKHP", "INDP"))%>% filter(WKHP>35)%>% mutate(short_industry=str_extract(INDP,"[aA-zZ]{1,4}" ))
+
+inc_sex<-psrc_pums_median(inc_sex_srvyr_obj, target_var='PERNP',group_vars = c("SEX", "short_industry"))%>%filter(COUNTY=='Region')%>%pivot_wider(names_from= c(SEX), values_from=c(PERNP_median, PERNP_median_moe))
+write.table(inc_sex,"clipboard-16384", sep='\t', row.names=FALSE )
+```
 ```
