@@ -1,0 +1,112 @@
+---
+title: ''
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(ggiraph)
+library(openxlsx)
+```
+
+```{r}
+df <- read.xlsx(file.path('data', 'AsianPacificIslanderMedianIncome.xlsx'))
+
+# clean data frame
+colnames(df) <- c('year', 'county', 'worker_race', 'median_earn', 'median_earn_moe')
+df <- df %>% 
+  mutate(label = str_to_title(worker_race),
+         sort = ifelse(label %in% str_subset(label, 'All.*'), '2', '1'),
+         lower = median_earn - median_earn_moe,
+         upper = median_earn + median_earn_moe) %>% 
+  arrange(label)
+
+# arrange labels
+label_a <- unique(df$label)[!(unique(df$label) %in% str_subset(unique(df$label), 'All.*'))]
+all_labels <- c(label_a, str_subset(unique(df$label), 'All.*'))
+df_alpha <- df %>%
+  mutate(label = factor(label, levels = all_labels),
+         fill = ifelse(label %in% str_subset(unique(df$label), '.*Region.*'), '1', '2')) %>% 
+  arrange(label)
+```
+
+```{r plot}
+plot_title <- 'Median Personal Earnings'
+plot_subtitle <- 'Asian Alone Groups and Total Regional'
+plot_source <- 'Source: 2015-19 ACS'
+
+gridline.color <- '#ededed'
+background.color <- 'white'
+  
+g <- ggplot(df_alpha) +
+  geom_col_interactive(aes(label, median_earn, fill = fill, 
+                           tooltip = paste0(label,': $', median_earn))) +
+  geom_linerange_interactive(aes(x = label, ymin = lower, ymax = upper)) +
+  scale_y_continuous(labels = scales::label_dollar()) +
+  scale_fill_manual(values = c( '#f05a28', '#bcbec0')) +
+  theme(axis.text.x = element_text(angle = 45,
+                                   hjust = 1,
+                                   vjust = 1.05,
+                                   size = 7),
+        legend.position = 'none',
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.background = element_rect(fill = background.color),
+        panel.grid.major.y = element_line(color = gridline.color),
+        panel.grid.minor.y = element_line(color = gridline.color),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        plot.caption = element_text(size=5)) +
+  labs(x = NULL,
+       y = NULL,
+       title = plot_title,
+       subtitle = plot_subtitle,
+       caption = plot_source)
+
+ggiraph(ggobj = g#,
+        # width_svg = 8,
+        # height_svg = 7
+        )
+  
+```
+
+```{r}
+df_high_low <- df_alpha %>% 
+  arrange(desc(median_earn)) %>% 
+  mutate(label = str_to_title(worker_race)) %>% 
+  mutate(label = factor(label, level = label))
+
+h <- ggplot(df_high_low) +
+  geom_col_interactive(aes(label, median_earn, fill = fill, 
+                           tooltip = paste0(label,': $', median_earn))) +
+  geom_linerange_interactive(aes(x = label, ymin = lower, ymax = upper)) +
+  # scale_x_discrete(labels = function(x) stringr::str_wrap(x, width = 20)) +
+  scale_y_continuous(labels = scales::label_dollar()) +
+  scale_fill_manual(values = c( '#f05a28', '#bcbec0')) +
+  theme(
+        legend.position = 'none',
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.background = element_rect(fill = background.color),
+        panel.grid.major.x = element_line(color = gridline.color),
+        panel.grid.minor.x = element_line(color = gridline.color),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.caption = element_text(size=5)) +
+  labs(x = NULL,
+       y = NULL,
+       title = plot_title,
+       subtitle = plot_subtitle,
+       caption = plot_source) +
+  coord_flip()
+
+ggiraph(ggobj = h, 
+        width_svg = 7,
+        height_svg = 7
+        )
+```
+
