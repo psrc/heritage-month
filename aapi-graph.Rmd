@@ -104,7 +104,7 @@ h <- ggplot(df_high_low) +
   coord_flip()
 
 
-ggiraph(ggobj = h, 
+plot<-ggiraph(ggobj = h, 
         width_svg = 20,
         height_svg = 10
         )

@@ -62,46 +62,6 @@ MULTG
 
 
 ### Educational Attainment
-compare 2020 and 2019 5 year
-```{r}
-
-
-
-
-Asian_df <- get_acs_recs(geography = 'county',
-             table.names = c('C15002D'),
-             years=c(2020),
-             acs.type = 'acs5')%>%filter(name=='Region')
-
-PI_df <- get_acs_recs(geography = 'county',
-             table.names = c('C15002E'),
-             years=c(2020),
-             acs.type = 'acs5')%>%filter(name=='Region')
-
-white_df <- get_acs_recs(geography = 'county',
-             table.names = c('C15002H'),
-             years=c(2020),
-             acs.type = 'acs5')%>%filter(name=='Region')
-
-
-Asian_PI_df<-merge(Asian_df, PI_df, by='label')
-Asian_PI_white_df<-merge(Asian_PI_df, white_df, by='label')
-
-
-Asian_PI_white_df_formatted<-Asian_PI_white_df %>% select(label,estimate.x, moe.x, estimate.y, moe.y, estimate.y, moe.y, estimate, moe) %>% rename(Asian_Educational_Attainment=estimate.x, Asian_Educational_Attainment_MOE=moe.x, Pacific_Islander_Educational_Attainment=estimate.y, Pacific_Islander_Educational_Attainment_MOE=moe.y, White_Educational_Attainment=estimate, White_Educational_Attainment_MOE=moe)
-
-
-
-
-
-write.table(Asian_PI_white_df_formatted,"clipboard", sep='\t', row.names=FALSE )
-
-
-Asian_PI_white_df_formatted
-
-
-```
-
 ```{r}
 
 
@@ -180,110 +140,10 @@ write.table(Asian_PI_white_df_formatted,"clipboard", sep='\t', row.names=FALSE )
 Asian_PI_white_df_formatted
 
 
-### Where were people born?
-```
-2020
-```{r}
-
-
-nativity_df_Asian<- get_acs_recs(geography = 'county',
-             table.names = c('B06004D'),
-             years=c(2020),
-             acs.type = 'acs5')
-
-
-
-nativity_df_Asian_formatted<-nativity_df_Asian 
-
-nativity_df_Asian_formatted
-write.table(nativity_df_Asian_formatted,"clipboard", sep='\t', row.names=FALSE )
-
-```
-2019
-```{r}
-
-
-nativity_df_Asian<- get_acs_recs(geography = 'county',
-             table.names = c('B06004D'),
-             years=c(2019),
-             acs.type = 'acs5')
-
-
-
-nativity_df_Asian_formatted<-nativity_df_Asian 
-
-nativity_df_Asian_formatted
-write.table(nativity_df_Asian_formatted,"clipboard", sep='\t', row.names=FALSE )
-
-```
-```{r}
-nativity_df_PI<- get_acs_recs(geography = 'county',
-             table.names = c('B06004E'),
-             years=c(2020),
-             acs.type = 'acs5')
-
-
-
-nativity_df_PI_formatted<-nativity_df_PI
-
-nativity_df_PI_formatted
-write.table(nativity_df_PI_formatted,"clipboard", sep='\t', row.names=FALSE )
-
-
-```
-```{r}
-nativity_df_PI<- get_acs_recs(geography = 'county',
-             table.names = c('B06004E'),
-             years=c(2019),
-             acs.type = 'acs5')
-
-
-
-nativity_df_PI_formatted<-nativity_df_PI
-
-nativity_df_PI_formatted
-write.table(nativity_df_PI_formatted,"clipboard", sep='\t', row.names=FALSE )
-
 
 ```
 
-### Median Income
-B19013D
-```{r}
 
-
-
-
-Asian_df <- get_acs_recs(geography = 'county',
-             table.names = c('B19013D'),
-             years=c(2020),
-             acs.type = 'acs5')
-PI_df <- get_acs_recs(geography = 'county',
-             table.names = c('B19013E'),
-             years=c(2020),
-             acs.type = 'acs5')
-
-white_df <- get_acs_recs(geography = 'county',
-             table.names = c('B19013H'),
-             years=c(2020),
-             acs.type = 'acs5')
-
-
-Asian_PI_df<-merge(Asian_df, PI_df, by=c('label', 'name'))
-Asian_PI_white_df<-merge(Asian_PI_df, white_df, by=c('label', 'name'))
-
-
-Asian_PI_white_df_formatted<-Asian_PI_white_df %>% select(label,name, estimate.x, moe.x, estimate.y, moe.y, estimate.y, moe.y, estimate, moe) %>% rename(Asian_Educational_Attainment=estimate.x, Asian_Median_Income_MOE=moe.x, Pacific_Islander_Median_Income=estimate.y, Pacific_Islander_Median_Income_MOE=moe.y, White_Median_Income=estimate, White_Median_Income_MOE=moe)
-
-
-
-
-
-write.table(Asian_PI_white_df_formatted,"clipboard", sep='\t', row.names=FALSE )
-
-
-Asian_PI_white_df_formatted
-```
 ### Median Income
 B19013D
 2019
@@ -426,113 +286,131 @@ write.table(white_asian_df,"clipboard", sep='\t', row.names=FALSE )
 
 white_asian_df
 ```
-
-### Means of Transportation to Work
+# Asian group by county
 
 ```{r}
-
-white_transport_df <- get_acs_recs(geography = 'county',
-             table.names = c('B08105A'),
-             years=c(2020),
-             acs.type = 'acs5')%>%filter(name=='Region')
-
-
-
-pi_transport_df <- get_acs_recs(geography = 'county',
-             table.names = c('B08105E'),
-             years=c(2020),
-             acs.type = 'acs5')%>%filter(name=='Region')
-
-
-
-white_pi_df<-merge(pi_transport_df, white_transport_df, by='label')%>% 
-  select(estimate.x, moe.x, label, estimate.y, moe.y)
-
-
-
-
-write.table(white_pi_df,"clipboard", sep='\t', row.names=FALSE )
-
-white_pi_df
-```
-
-
-### B25014, Occupants per room
-```{r}
-white_df <- get_acs_recs(geography = 'county',
-             table.names = c('B25014H'),
+Asian_df_county <- get_acs_recs(geography = 'county',
+             table.names = c('B02015'),
              years=c(2019),
              acs.type = 'acs5')
 
+write.table(Asian_df_county,"clipboard", sep='\t', row.names=FALSE )
+```
 
 
-Black_df <- get_acs_recs(geography = 'county',
-             table.names = c('B25014B'),
+
+
+```{r}
+
+
+```
+
+
+```{r}
+Asian_df_tract<- get_acs_recs(geography = 'tract',
+             table.names = c('B02015'),
              years=c(2019),
              acs.type = 'acs5')
-```
 
+```
 
 
 
 ```{r}
-white_Black_df<-merge(Black_df, white_df, by='label')%>% 
-  select(estimate.x, moe.x, label, estimate.y, moe.y)
-
-
-
-
-write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )
-
-
-white_Black_df
+library(stringr)
+Asian_df_max_tract<-Asian_df_tract%>% select('GEOID', 'label', 'estimate', 'moe')%>% filter(label!='Estimate!!Total:') %>% group_by(GEOID)%>%top_n(1, estimate)%>%mutate(label_short=str_replace_all(label, 'Estimate!!Total:!!', replacement=''))%>%
+             mutate(label_short_na=if_else(estimate>300, "not enough data", label_short ))%>%
+  mutate(top_group= as.factor(label_short_na))%>%mutate('GEOID'=as.character(GEOID))%>%select(GEOID, top_group)
 ```
 
 ```{r}
-white_df <- get_acs_recs(geography = 'county',
-             table.names = c('B25032H'),
-             years=c(2019),
-             acs.type = 'acs5')%>%filter(name=='Region')
+create_tract_map_categorical <- function(tbl, tract.lyr,
+                             map.title = NULL, map.subtitle = NULL,
+                             map.title.position = NULL,
+                             legend.title = NULL, legend.subtitle = NULL,
+                             map.lat=47.615, map.lon=-122.257, map.zoom=8.5, wgs84=4326){
+  #print(tract.tbl)
 
 
+    tract.lyr<-tract.lyr%>%
+    # make geo names across 2010 and 2020
+    dplyr::rename_at(dplyr::vars(matches("geoid10")),function(x) "geoid") %>%
+    dplyr::rename_at(dplyr::vars(matches("geoid20")),function(x) "geoid")
 
-Black_df <- get_acs_recs(geography = 'county',
-             table.names = c('B25032B'),
-             years=c(2019),
-             acs.type = 'acs5')%>%filter(name=='Region')
+  c.layer <- dplyr::left_join(tract.lyr,tbl, by = c("geoid"="GEOID")) %>%
+    sf::st_transform(wgs84)
 
-white_Black_df<-merge(Black_df, white_df, by='label')%>% 
-  select(estimate.x, moe.x, label, estimate.y, moe.y)
+  pal <- leaflet::colorFactor(palette="Spectral", domain = c.layer$top_group)
 
-write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )%>%filter(name=='Region')
+
+  labels <- paste0("Census Tract: ", c.layer$geoid, '<p></p>',
+                   'Top Asian Alone Group: ', c.layer$top_group %>% lapply(htmltools::HTML))
+
+  m <- leaflet::leaflet() %>%
+    leaflet::addMapPane(name = "polygons", zIndex = 410) %>%
+    leaflet::addMapPane(name = "maplabels", zIndex = 500) %>% # higher zIndex rendered on top
+
+    leaflet::addProviderTiles("CartoDB.VoyagerNoLabels") %>%
+    leaflet::addProviderTiles("CartoDB.VoyagerOnlyLabels",
+                              options = leaflet::leafletOptions(pane = "maplabels"),
+                              group = "Labels") %>%
+
+    leaflet::addEasyButton(leaflet::easyButton(icon="fa-globe",
+                                               title="Region",
+                                               onClick=leaflet::JS("function(btn, map){map.setView([47.615,-122.257],8.5); }"))) %>%
+    leaflet::addPolygons(data=c.layer,
+                         fillOpacity = 0.7,
+                         fillColor = pal(c.layer$Total),
+                         weight = 0.7,
+                         color = "#BCBEC0",
+                         group="Population",
+                         opacity = 0,
+                         stroke=FALSE,
+                         options = leaflet::leafletOptions(pane = "polygons"),
+                         dashArray = "",
+                         highlight = leaflet::highlightOptions(
+                           weight =5,
+                           color = "76787A",
+                           dashArray ="",
+                           fillOpacity = 0.7,
+                           bringToFront = TRUE),
+                         label = labels,
+                         labelOptions = leaflet::labelOptions(
+                           style = list("font-weight" = "normal", padding = "3px 8px"),
+                           textsize = "15px",
+                           direction = "auto")) %>%
+
+    leaflet::addLegend(pal = pal,
+                       values = c.layer$Total,
+                       position = "bottomright",
+                       title = paste(legend.title, '<br>', legend.subtitle)) %>%
+
+    leaflet::addControl(html = paste(map.title, '<br>', map.subtitle),
+                        position = map.title.position,
+                        layerId = 'mapTitle') %>%
+
+    leaflet::addLayersControl(baseGroups = "CartoDB.VoyagerNoLabels",
+                              overlayGroups = c("Labels", "Population")) %>%
+
+    leaflet::setView(lng=map.lon, lat=map.lat, zoom=map.zoom)
+
+  return(m)
+
+}
+
 ```
-
-# Computers at home
 ```{r}
-Black_df <- get_acs_recs(geography = 'county',
-             table.names = c('B28009B'),
-             years=c(2019),
-             acs.type = 'acs5')%>%filter(name=='Region')
-
-
-white_df <- get_acs_recs(geography = 'county',
-             table.names = c('B28009H'),
-             years=c(2019),
-             acs.type = 'acs5')%>%filter(name=='Region')
-
-
-
-
-white_Black_df<-merge(Black_df, white_df, by='label')%>% 
-  select(estimate.x, moe.x, label, estimate.y, moe.y)
-
-write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )%>%filter(name=='Region')
+m<-create_tract_map_categorical(tbl=Asian_df_max_tract, tract.lyr=tract.lyr,  
+                 legend.title='Top Asian Alone group', legend.subtitle=' by Census Tract')
 ```
+
+
+
 # Job sector
 
 ```{r}
-Black_df <- get_acs_recs(geography = 'county',
-             table.names = c('C24010B'),
+Asian_df <- get_acs_recs(geography = 'county',
+             table.names = c('C24010D'),
              years=c(2019),
              acs.type = 'acs5')%>%filter(name=='Region')
 
@@ -553,81 +431,138 @@ white_Black_df
 ```
 
 
-# Health Insurance
-```{r}
-Black_df <- get_acs_recs(geography = 'county',
-             table.names = c('C27001B'),
-             years=c(2019),
-             acs.type = 'acs5')%>%filter(name=='Region')
-
-
-white_df <- get_acs_recs(geography = 'county',
-             table.names = c('C27001H'),
-             years=c(2019),
-             acs.type = 'acs5')%>%filter(name=='Region')
-
-
-
-
-white_Black_df<-merge(Black_df, white_df, by='label')%>% 
-  select(estimate.x, moe.x, label, estimate.y, moe.y)
-white_Black_df
-
-write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )
-```
 
 ```{r}
-foreign_born<-get_acs_recs(geography = 'tract',
-             table.names = 'B05006',
+
+# to determine the threshold for reporting, I'm assuming the 5 year CS has roughly a 10% sample rate of the population, if the population of adults is 300 then the MOE is around 15%; it looks like the map ranges from shares around 10% to 97% so there is truly a wide range, and for rough story telling it should be okay.
+
+edu<-get_acs_recs(geography = 'tract',
+             table.names = 'C15002D',
              years = 2019,
-             acs.type = 'acs5')
-
-foreign_born_Africa <- foreign_born %>% filter(label=='Estimate!!Total:!!Africa:')
-
-             
-gdb.nm <- paste0("MSSQL:server=",
-"AWS-PROD-SQL\\Sockeye",
-";database=",
-"ElmerGeo",
-";trusted_connection=yes")
-
-spn <-  2285
-wgs84=4326
-
-tract_layer_name <- "dbo.tract2010_nowater"
-
-tract.lyr <- st_read(gdb.nm, tract_layer_name, crs = spn)
+             acs.type = 'acs5')%>% select('GEOID', 'label', 'estimate', 'moe')%>%filter(
+label=='Estimate!!Total:!!Male:!!Bachelor\'s degree or higher' | label==
+'Estimate!!Total:!!Female:!!Bachelor\'s degree or higher' | label==
+'Estimate!!Total:')%>% pivot_wider(names_from=label, values_from=c(estimate, moe))%>%mutate('Total Bachelor\'s degree or higher'=`estimate_Estimate!!Total:!!Male:!!Bachelor's degree or higher` +`estimate_Estimate!!Total:!!Female:!!Bachelor's degree or higher`)%>%mutate(tots_with_not_enough_data=ifelse(`estimate_Estimate!!Total:`>300,`estimate_Estimate!!Total:`,NaN))%>% mutate('share_unformatted'= `Total Bachelor's degree or higher`/tots_with_not_enough_data)%>%mutate('estimate'=round(share_unformatted*100,0))
 
 
 
-m<-psrccensus::create_tract_map(tract.tbl=foreign_born_Africa, tract.lyr=tract.lyr,  
-                 legend.title='African Foreign Born Population', legend.subtitle='by Census Tract')
-
-
-
-
-Map of difference in median income men vs women
-
-### Median Earnings Tract
-```{r}
-earnings_df_tract <- get_acs_recs(geography = 'tract',
-             table.names = c('B20017'),
-             years=c(2019),
-             acs.type = 'acs5')%>%filter(label=="Estimate!!Median earnings in the past 12 months (in 2019 inflation-adjusted dollars) --!!Total (dollars):!!Male --!!Total (dollars)!!Worked full-time, year-round in the past 12 months (dollars)" | label=='Estimate!!Median earnings in the past 12 months (in 2019 inflation-adjusted dollars) --!!Total (dollars):!!Female --!!Total (dollars)!!Worked full-time, year-round in the past 12 months (dollars)')
 
 
 ```
-``
+```{r}
+
+create_tract_map_share_edu <- function(tract.tbl, tract.lyr,
+                             map.title = NULL, map.subtitle = NULL,
+                             map.title.position = NULL,
+                             legend.title = NULL, legend.subtitle = NULL,
+                             map.lat=47.615, map.lon=-122.257, map.zoom=8.5, wgs84=4326){
+
+
+  # Summarize and Aggregate Tract Data by Year and Attribute to Map and join to tract layer for mapping
+  # rename census value column to estimate to match ACS
+  # also allow for the easy mapping of equity geographies
+  tbl <- tract.tbl %>%
+    dplyr::rename_at(dplyr::vars(matches("value")),function(x) "estimate") %>%
+    dplyr::rename_at(dplyr::vars(matches("equity_geog_vs_50_percent")),function(x) "estimate") %>%
+    dplyr::rename_at(dplyr::vars(matches('equity_geog_vs_reg_total')),function(x) "estimate") %>%
+    dplyr::rename_at(dplyr::vars(matches("geoid")),function(x) "GEOID") %>%
+    dplyr::select(.data$GEOID,.data$estimate) %>%
+    dplyr::mutate(dplyr::across(c('GEOID'), as.character))%>%
+    dplyr::group_by(.data$GEOID) %>%
+    dplyr::summarise(Share=sum(.data$estimate))
+
+    tract.lyr<-tract.lyr%>%
+    # make geo names across 2010 and 2020
+    dplyr::rename_at(dplyr::vars(matches("geoid10")),function(x) "geoid") %>%
+    dplyr::rename_at(dplyr::vars(matches("geoid20")),function(x) "geoid")
+
+  c.layer <- dplyr::left_join(tract.lyr,tbl, by = c("geoid"="GEOID")) %>%
+    sf::st_transform(wgs84)
+
+  pal <- leaflet::colorNumeric(palette="Purples", domain = c.layer$Share)
+
+
+  labels <- paste0("Census Tract: ", c.layer$geoid, '<p></p>',
+                   'Share: ', paste(c.layer$Share, "%", sep=""))%>% lapply(htmltools::HTML)
+
+  m <- leaflet::leaflet() %>%
+    leaflet::addMapPane(name = "polygons", zIndex = 410) %>%
+    leaflet::addMapPane(name = "maplabels", zIndex = 500) %>% # higher zIndex rendered on top
+
+    leaflet::addProviderTiles("CartoDB.VoyagerNoLabels") %>%
+    leaflet::addProviderTiles("CartoDB.VoyagerOnlyLabels",
+                              options = leaflet::leafletOptions(pane = "maplabels"),
+                              group = "Labels") %>%
+
+    leaflet::addEasyButton(leaflet::easyButton(icon="fa-globe",
+                                               title="Region",
+                                               onClick=leaflet::JS("function(btn, map){map.setView([47.615,-122.257],8.5); }"))) %>%
+    leaflet::addPolygons(data=c.layer,
+                         fillOpacity = 0.7,
+                         fillColor = pal(c.layer$Share),
+                         weight = 0.7,
+                         color = "#BCBEC0",
+                         group="Population",
+                         opacity = 0,
+                         stroke=FALSE,
+                         options = leaflet::leafletOptions(pane = "polygons"),
+                         dashArray = "",
+                         highlight = leaflet::highlightOptions(
+                           weight =5,
+                           color = "76787A",
+                           dashArray ="",
+                           fillOpacity = 0.7,
+                           bringToFront = TRUE),
+                         label = labels,
+                         labelOptions = leaflet::labelOptions(
+                           style = list("font-weight" = "normal", padding = "3px 8px"),
+                           textsize = "15px",
+                           direction = "auto")) %>%
+    leaflet::addLegend(pal = pal,
+                       values = c.layer$Share,
+                       position = "bottomright",
+                       title = paste(legend.title, '<br>', legend.subtitle),
+                       labFormat=leaflet::labelFormat(suffix='%'),
+                       na.label='not enough <br>     data to report')%>%
+
+    leaflet::addControl(html = paste(map.title, '<br>', map.subtitle),
+                        position = map.title.position,
+                        layerId = 'mapTitle') %>%
+
+    leaflet::addLayersControl(baseGroups = "CartoDB.VoyagerNoLabels",
+                              overlayGroups = c("Labels", "Population")) %>%
+
+    leaflet::setView(lng=map.lon, lat=map.lat, zoom=map.zoom)
+
+  return(m)
+
+}
+```
+
+```{r}
+
+m<-create_tract_map_share_edu(tract.tbl=edu, tract.lyr=tract.lyr,  
+                 legend.title='Share of Asian Alone Adults', legend.subtitle=' with Bachelor\`s degree or higher')
+```
 
 
 ###Educational attainment
 ```{r}
 edu_df <- get_acs_recs(geography = 'county',
-             table.names = c('B15002'),
+             table.names = c('C15002'),
              years=c(2019),
              acs.type = 'acs5')%>%filter(name=='Region')%>% arrange(label, name)%>%select(name, label, estimate, moe)
 edu_df
 write.table(edu_df,"clipboard-16384", sep='\t', row.names=FALSE )
+```
+
+```{r}
+edu_df_tract <- get_acs_recs(geography = 'tract',
+             table.names = c('B15002'),
+             years=c(2019),
+             acs.type = 'acs5')
+
+
 ```
 
 
@@ -642,6 +577,18 @@ inc_race<-psrc_pums_median(inc_race_srvyr_obj, stat_var="PERNP",group_vars = c("
 write.table(inc_race,"clipboard-16384", sep='\t', row.names=FALSE )
 
 ```
+
+
+```{r}
+inc_race_srvyr_obj<-get_psrc_pums(span=5, dyear=2019, level="p", vars=c("PERNP","RAC1P", "WKHP"))%>% filter(WKHP>10)
+
+inc_race<-psrc_pums_median(inc_race_srvyr_obj, stat_var="PERNP",group_vars = c("RAC1P"))
+#%>%filter(COUNTY=='Region')%>%pivot_wider(names_from= RAC2P, values_from=c(PERNP_median, PERNP_median_moe))
+
+write.table(inc_race,"clipboard-16384", sep='\t', row.names=FALSE )
+
+```
+
 
 ```{r}
 employment_status_sex_srvyr_obj<-get_psrc_pums(span=5, dyear=2019, level="p", vars=c("SEX","ESR", 'WKHP'))
