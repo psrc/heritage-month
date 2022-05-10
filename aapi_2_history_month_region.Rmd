@@ -182,78 +182,9 @@ write.table(Asian_PI_white_df_formatted,"clipboard", sep='\t', row.names=FALSE )
 
 Asian_PI_white_df_formatted
 ```
-## Homeownership
-
-```{r}
-
-
-homeownership_black<-get_acs_recs(geography = 'county',
-             table.names = c('B25003B'),
-             years=c(2019),
-             acs.type = 'acs1')
-
-homeownership_white<-get_acs_recs(geography = 'county',
-             table.names = c('B25003H'),
-             years=c(2019),
-             acs.type = 'acs1')
-
-
-homeownership_df_black_white<- merge(homeownership_black, homeownership_white, by=c('label','name'))
-write.table(homeownership_df_black_white,"clipboard", sep='\t', row.names=FALSE )
-
-homeownership_df_black_white
-
-```
-
-### Median Age by Black and All
-
-```{r}
-
-Black_age_df<-get_acs_recs(geography = 'county',
-             table.names = c('B01002B'),
-             years=c(2019),
-             acs.type = 'acs5')
-
-
-white_age_df <- get_acs_recs(geography = 'county',
-             table.names = c('B01002H'),
-             years=c(2019),
-             acs.type = 'acs5')
-
-
-white_Black_df<-merge(Black_age_df, white_age_df, by=c('name','label'))%>% filter(label=='Estimate!!Median age --!!Total:')%>%
-  select(name,estimate.x, estimate.y, )%>% rename('County'='name', 'Black population' ='estimate.x', 'White Population'='estimate.y')
-
-write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )
-white_Black_df
-
-```
 
 
 
-### Poverty Rates
-
-```{r}
-
-
-poverty_df_Black<- get_acs_recs(geography = 'county',
-             table.names = c('B17020B'),
-             years=c(2019),
-             acs.type = 'acs5')
-poverty_df_white <- get_acs_recs(geography = 'county',
-             table.names = c('B17020H'),
-             years=c(2019),
-             acs.type = 'acs5')
-
-poverty_df_white<- poverty_df_white %>% filter(label=='Estimate!!Total:' | label=='Estimate!!Total:!!Income in the past 12 months below poverty level:')%>%select(name, estimate,moe,label)%>%tidyr::pivot_wider(names_from=label,values_from=c(estimate,moe) )
-
-poverty_df_black<- poverty_df_Black %>% filter(label=='Estimate!!Total:' | label=='Estimate!!Total:!!Income in the past 12 months below poverty level:')%>%select(name, estimate,moe,label)%>%tidyr::pivot_wider(names_from=label,values_from=c(estimate,moe) )
-
-poverty_df_black_white<- merge(poverty_df_black, poverty_df_white, by='name')
-
-write.table(poverty_df_black_white,"clipboard", sep='\t', row.names=FALSE )
-
-```
 
 
 
@@ -299,11 +230,6 @@ write.table(Asian_df_county,"clipboard", sep='\t', row.names=FALSE )
 
 
 
-
-```{r}
-
-
-```
 
 
 ```{r}
@@ -408,29 +334,6 @@ m<-create_tract_map_categorical(tbl=Asian_df_max_tract, tract.lyr=tract.lyr,
 
 
 
-# Job sector
-
-```{r}
-Asian_df <- get_acs_recs(geography = 'county',
-             table.names = c('C24010D'),
-             years=c(2019),
-             acs.type = 'acs5')%>%filter(name=='Region')
-
-
-white_df <- get_acs_recs(geography = 'county',
-             table.names = c('C24010H'),
-             years=c(2019),
-             acs.type = 'acs5')%>%filter(name=='Region')
-
-
-
-
-white_Black_df<-merge(Black_df, white_df, by='label')%>% 
-  select(estimate.x, moe.x, label, estimate.y, moe.y)
-
-write.table(white_Black_df,"clipboard", sep='\t', row.names=FALSE )
-white_Black_df
-```
 
 
 
@@ -581,34 +484,4 @@ inc_race<-psrc_pums_median(inc_race_srvyr_obj, stat_var="PERNP",group_vars = c("
 
 write.table(inc_race,"clipboard-16384", sep='\t', row.names=FALSE )
 
-```
-
-
-```{r}
-employment_status_sex_srvyr_obj<-get_psrc_pums(span=5, dyear=2019, level="p", vars=c("SEX","ESR", 'WKHP'))
-
-
-
-emp_sex<-psrc_pums_count(employment_status_sex_srvyr_obj,group_vars = c("SEX", "ESR"))%>%filter(COUNTY=='Region')
-
-write.table(emp_sex,"clipboard-16384", sep='\t', row.names=FALSE )
-
-```
-
-
-```{r}
-jobs_df <- get_acs_recs(geography = 'county',
-             table.names = c('C24030'),
-             years=c(2019),
-             acs.type = 'acs5')%>%filter(name=='Region')%>% arrange(label, name)%>%select(name, label, estimate, moe)
-jobs_df
-write.table(jobs_df,"clipboard-16384", sep='\t', row.names=FALSE )
-```
-
-```{r}
-inc_sex_srvyr_obj<-get_psrc_pums(span=5, dyear=2019, level="p", vars=c("SEX","PERNP","WKHP", "INDP"))%>% filter(WKHP>35)%>% mutate(short_industry=str_extract(INDP,"[aA-zZ]{1,4}" ))
-
-inc_sex<-psrc_pums_median(inc_sex_srvyr_obj, target_var='PERNP',group_vars = c("SEX", "short_industry"))%>%filter(COUNTY=='Region')%>%pivot_wider(names_from= c(SEX), values_from=c(PERNP_median, PERNP_median_moe))
-write.table(inc_sex,"clipboard-16384", sep='\t', row.names=FALSE )
-```
 ```
