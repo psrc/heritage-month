@@ -1,6 +1,9 @@
 ---
 title: ''
-output: html_document
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
 ---
 
 ```{r setup, include=FALSE}
@@ -14,6 +17,7 @@ library(openxlsx)
 library(pals)
 ```
 
+# Median Personal Earnings
 ```{r read excel}
 filepath <- file.path('data','AsianPacificIslanderMedianIncome.xlsx')
 tabs <- getSheetNames(filepath)
@@ -21,6 +25,7 @@ tabList <- map(tabs, ~read.xlsx(xlsxFile = filepath, sheet = .x))
 names(tabList) <- tabs
 ```
 
+## Detailed Race Groups
 ```{r subgroup data}
 sg <- tabList[[1]]
 
@@ -45,7 +50,7 @@ sg_alpha <- sg %>%
 ```{r plot detail}
 plot_title <- 'Median Worker Annual Earnings'
 plot_subtitle <- 'Asian Alone Groups and Total Regional '
-plot_source <- 'Source: 2015-19 PUMS'
+plot_source <- 'Source: : U.S. Census Bureau, American Community Survey (ACS) 2015-19 Five-Year Estimates'
 
 gridline.color <- '#ededed'
 background.color <- 'white'
@@ -125,6 +130,7 @@ plot_h
 htmltools::save_html(plot_h, "median-worker-annual-earn.html")
 ```
 
+## Broad Race Groups
 ```{r broadrace}
 br <- tabList[[2]]
 
@@ -145,7 +151,7 @@ br <- br %>%
 ```{r plot broadrace}
 plot_title_br <- 'Median Worker Annual Earnings'
 # plot_subtitle_br <- 'Asian Alone Groups and Total Regional'
-plot_source_br <- 'Source: 2015-19 PUMS'
+plot_source_br <- 'Source: : U.S. Census Bureau, American Community Survey (ACS) 2015-19 Five-Year Estimates'
 
 i <- ggplot(br) +
   geom_col_interactive(aes(label, median_earn, fill = worker_race, 
@@ -182,5 +188,97 @@ plot_i <- ggiraph(ggobj = i)
 plot_i
 
 htmltools::save_html(plot_i, "median-worker-annual-earn_broad.html")
+```
+
+# Educational Attainment
+```{r education}
+# tidy data
+edu <- read.xlsx(file.path('data', 'AsianPacificIslander22_2.xlsx'))
+
+colnames(edu) <- c('education', 'asian', 'nhpi', 'white')
+aapi_edu_labels <- c('asian' = 'Asian', 'nhpi' = 'Native Hawaiian or Pacific Islander', 'white' = 'White')
+
+edu_l <- edu %>% 
+  pivot_longer(cols = colnames(edu)[2:4],
+               names_to = 'race',
+               values_to = 'share')
+
+edu_l <- edu_l %>% 
+  mutate(education = factor(education, levels = unique(edu_l$education)),
+         race = factor(race, levels = names(aapi_edu_labels)))
+         # race = factor(race, levels = c('asian', 'nhpi', 'white')))
+```
+
+```{r education plot}
+plot_title_edu <- 'Educational Attainment'
+# plot_subtitle_edu <- ''
+plot_source_edu <- 'Source: : U.S. Census Bureau, American Community Survey (ACS) 2015-19 Five-Year Estimates'
+
+e <- ggplot(edu_l) +
+  geom_col_interactive(aes(share, 
+                           race, 
+                           fill = education,
+                           tooltip = paste0(education, ": ", scales::label_percent(suffix = " %")(share)))) +
+  scale_y_discrete(labels = str_wrap(aapi_edu_labels, width = 20)) +
+  scale_fill_manual(values = pals::brewer.set2(4)) +
+  scale_x_continuous(labels = scales::label_percent()) +
+  theme(axis.title = element_text(size = 8),
+        axis.text.y = element_text(size = 7),
+        axis.text.x = element_text(size = 8),
+        legend.position = 'bottom',
+        legend.text = element_text(size = 5),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.background = element_rect(fill = background.color),
+        panel.grid.major.x = element_line(color = gridline.color),
+        panel.grid.minor.x = element_line(color = gridline.color),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.caption = element_text(size=5)) +
+  labs(x = NULL,
+       y = NULL,
+       fill = NULL,
+       title = plot_title_edu,
+       caption = plot_source_edu)
+
+plot_e <- ggiraph(ggobj = e)
+plot_e
+
+htmltools::save_html(plot_e, "aapi-education.html")
+```
+
+```{r education plot2}
+e <- ggplot(edu_l) +
+  geom_col_interactive(aes(race,
+                           share, 
+                           fill = education,
+                           tooltip = paste0(education, ": ", scales::label_percent(suffix = " %")(share))),
+                       position = 'dodge') +
+  scale_x_discrete(labels = str_wrap(aapi_edu_labels, width = 20)) +
+  scale_fill_manual(values = pals::brewer.set2(4)) +
+  scale_y_continuous(labels = scales::label_percent()) +
+  theme(axis.title = element_text(size = 8),
+        axis.text.y = element_text(size = 7),
+        axis.text.x = element_text(size = 8),
+        legend.position = 'bottom',
+        legend.text = element_text(size = 5),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.background = element_rect(fill = background.color),
+        panel.grid.major.y = element_line(color = gridline.color),
+        panel.grid.minor.y = element_line(color = gridline.color),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        plot.caption = element_text(size=5)) +
+  labs(x = NULL,
+       y = NULL,
+       fill = NULL,
+       title = plot_title_edu,
+       caption = plot_source_edu)
+
+plot_e <- ggiraph(ggobj = e)
+plot_e
+
+# htmltools::save_html(plot_e, "aapi-education.html")
 ```
 
