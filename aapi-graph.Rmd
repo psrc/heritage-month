@@ -193,28 +193,33 @@ htmltools::save_html(plot_i, "median-worker-annual-earn_broad.html")
 # Educational Attainment
 ```{r education}
 # tidy data
-edu <- read.xlsx(file.path('data', 'AsianPacificIslander22_2.xlsx'))
+edu_filepath <- file.path('data','AsianPacificIslander22_2.xlsx')
+edu_tabs <- getSheetNames(edu_filepath)
+edu_tabList <- map(edu_tabs, ~read.xlsx(xlsxFile = edu_filepath, sheet = .x))
+names(edu_tabList) <- edu_tabs
 
-colnames(edu) <- c('education', 'asian', 'nhpi', 'white')
+edu_region <- edu_tabList[[1]]
+
+colnames(edu_region) <- c('education', 'asian', 'nhpi', 'white')
 aapi_edu_labels <- c('asian' = 'Asian', 'nhpi' = 'Native Hawaiian or Pacific Islander', 'white' = 'White')
 
-edu_l <- edu %>% 
-  pivot_longer(cols = colnames(edu)[2:4],
+edu_r_l <- edu_region %>% 
+  pivot_longer(cols = colnames(edu_region)[2:4],
                names_to = 'race',
                values_to = 'share')
 
-edu_l <- edu_l %>% 
-  mutate(education = factor(education, levels = unique(edu_l$education)),
+edu_r_l <- edu_r_l %>% 
+  mutate(education = factor(education, levels = unique(edu_r_l$education)),
          race = factor(race, levels = names(aapi_edu_labels)))
          # race = factor(race, levels = c('asian', 'nhpi', 'white')))
 ```
 
-```{r education plot}
+```{r education plot region}
 plot_title_edu <- 'Educational Attainment'
 # plot_subtitle_edu <- ''
 plot_source_edu <- 'Source: : U.S. Census Bureau, American Community Survey (ACS) 2015-19 Five-Year Estimates'
 
-e <- ggplot(edu_l) +
+e <- ggplot(edu_r_l) +
   geom_col_interactive(aes(share, 
                            race, 
                            fill = education,
@@ -244,11 +249,11 @@ e <- ggplot(edu_l) +
 plot_e <- ggiraph(ggobj = e)
 plot_e
 
-htmltools::save_html(plot_e, "aapi-education.html")
+htmltools::save_html(plot_e, "aapi-education-region.html")
 ```
 
-```{r education plot2}
-e <- ggplot(edu_l) +
+```{r education plot region 2}
+e <- ggplot(edu_r_l) +
   geom_col_interactive(aes(race,
                            share, 
                            fill = education,
@@ -280,5 +285,60 @@ plot_e <- ggiraph(ggobj = e)
 plot_e
 
 # htmltools::save_html(plot_e, "aapi-education.html")
+```
+
+```{r education county}
+edu_cnty <- edu_tabList[[2]]
+
+colnames(edu_cnty) <- c('county', 'asian', 'nhpi', 'white')
+juris <- c('King', 'Kitsap', 'Pierce', 'Snohomish', 'Region')
+
+edu_cnty_l <- edu_cnty %>% 
+  pivot_longer(cols = colnames(edu_cnty)[2:4],
+               names_to = 'race',
+               values_to = 'share')
+
+edu_cnty_l <- edu_cnty_l %>% 
+  mutate(race = factor(race, levels = names(aapi_edu_labels)),
+         county = factor(county, levels = juris))
+
+```
+
+```{r education plot county}
+plot_subtitle_edu_cnty <- "Adults over the age 25 with a Bachelor's degree or higher"
+
+e_cnty <- ggplot(edu_cnty_l) +
+  geom_col_interactive(aes(race, 
+                           share,
+                           fill = county,
+                           tooltip = paste0(county, ": ", scales::label_percent(suffix = " %")(share))),
+                       position = 'dodge') +
+  scale_x_discrete(labels = str_wrap(aapi_edu_labels, width = 20)) +
+  scale_fill_manual(values = pals::brewer.set2(5)) +
+  scale_y_continuous(labels = scales::label_percent()) +
+  theme(axis.title = element_text(size = 8),
+        axis.text.y = element_text(size = 7),
+        axis.text.x = element_text(size = 8),
+        legend.position = 'bottom',
+        legend.text = element_text(size = 6),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.background = element_rect(fill = background.color),
+        panel.grid.major.x = element_line(color = gridline.color),
+        panel.grid.minor.x = element_line(color = gridline.color),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.caption = element_text(size=5)) +
+  labs(x = NULL,
+       y = NULL,
+       fill = NULL,
+       title = plot_title_edu,
+       subtitle = plot_subtitle_edu_cnty,
+       caption = plot_source_edu)
+
+plot_e_cnty <- ggiraph(ggobj = e_cnty)
+plot_e_cnty
+
+# htmltools::save_html(plot_e, "aapi-education-county.html")
 ```
 
