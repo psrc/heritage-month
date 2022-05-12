@@ -19,11 +19,11 @@ label=='Estimate!!Total:!!Male:!!Bachelor\'s degree or higher' | label==
 'Estimate!!Total:!!Female:!!Bachelor\'s degree or higher' | label==
 'Estimate!!Total:')%>% pivot_wider(names_from=label, values_from=c(estimate, moe))%>%mutate('Total Bachelor\'s degree or higher'=`estimate_Estimate!!Total:!!Male:!!Bachelor's degree or higher` +`estimate_Estimate!!Total:!!Female:!!Bachelor's degree or higher`)%>%mutate(tots_with_not_enough_data=ifelse(`estimate_Estimate!!Total:`>300,`estimate_Estimate!!Total:`,NaN))%>% mutate('share_unformatted'= `Total Bachelor's degree or higher`/tots_with_not_enough_data)%>%mutate('estimate'=round(share_unformatted*100,0))
 
-
-
-
+tract.lyr.url <- "https://services6.arcgis.com/GWxg6t7KXELn1thE/arcgis/rest/services/Census_Tracts_2010/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson"
+tract.lyr <- sf::st_read(tract.lyr.url)
 
 ```
+
 ```{r}
 
 create_tract_map_share_edu <- function(tract.tbl, tract.lyr,
@@ -54,11 +54,13 @@ create_tract_map_share_edu <- function(tract.tbl, tract.lyr,
   c.layer <- dplyr::left_join(tract.lyr,tbl, by = c("geoid"="GEOID")) %>%
     sf::st_transform(wgs84)
 
-  pal <- leaflet::colorNumeric(palette="Purples", domain = c.layer$Share)
-
+  pal <- leaflet::colorNumeric(palette="Purples", domain = c.layer$Share, na.color = "#76787A")
 
   labels <- paste0("Census Tract: ", c.layer$geoid, '<p></p>',
                    'Share: ', paste(c.layer$Share, "%", sep=""))%>% lapply(htmltools::HTML)
+
+  css_fix <- "div.info.legend.leaflet-control br {clear: both;}" # CSS to correct spacing of NA icon & text
+  html_fix <- htmltools::tags$style(type = "text/css", css_fix)  # Convert CSS to HTML
 
   m <- leaflet::leaflet() %>%
     leaflet::addMapPane(name = "polygons", zIndex = 410) %>%
@@ -98,7 +100,7 @@ create_tract_map_share_edu <- function(tract.tbl, tract.lyr,
                        position = "bottomright",
                        title = paste(legend.title, '<br>', legend.subtitle),
                        labFormat=leaflet::labelFormat(suffix='%'),
-                       na.label='not enough <br>     data to report')%>%
+                       na.label='Not enough data to report')%>%
 
     leaflet::addControl(html = paste(map.title, '<br>', map.subtitle),
                         position = map.title.position,
@@ -109,13 +111,16 @@ create_tract_map_share_edu <- function(tract.tbl, tract.lyr,
 
     leaflet::setView(lng=map.lon, lat=map.lat, zoom=map.zoom)
 
+  m <- m %>% htmlwidgets::prependContent(html_fix) # Insert into leaflet HTML code
+  
   return(m)
 
 }
 ```
+
 ```{r}
 m<-create_tract_map_share_edu(tract.tbl=edu, tract.lyr=tract.lyr,  
-                 legend.title='Share of Asian Alone Adults', legend.subtitle=' with Bachelor\`s degree or higher')
+                 legend.title='Share of Asian Alone Adults', legend.subtitle='with Bachelor\'s degree or higher')
 m
 ```
 
