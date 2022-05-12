@@ -103,9 +103,9 @@ h <- ggplot(df_high_low) +
   scale_fill_manual(values = pals::brewer.pastel1(24)) +
   scale_x_discrete(labels = function(x) stringr::str_wrap(x, width = 35)) +
   scale_y_continuous(labels = scales::label_dollar()) +
-  theme(axis.title = element_text(size = 8),
-        axis.text.y = element_text(size = 5),
-        axis.text.x = element_text(size = 7),
+  theme(axis.title = element_text(size = 12),
+        axis.text.y = element_text(size = 10),
+        axis.text.x = element_text(size = 10),
         legend.position = 'none',
         axis.ticks.x = element_blank(),
         axis.ticks.y = element_blank(),
@@ -114,7 +114,7 @@ h <- ggplot(df_high_low) +
         panel.grid.minor.x = element_line(color = gridline.color),
         panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank(),
-        plot.caption = element_text(size=5)) +
+        plot.caption = element_text(size=8)) +
   labs(x = 'Person Detailed Race',
        y = 'Median Worker Earnings',
        title = plot_title,
@@ -163,9 +163,9 @@ i <- ggplot(br) +
   scale_fill_manual(values = pals::brewer.pastel1(9)) +
   scale_x_discrete(labels = function(x) stringr::str_wrap(x, width = 35)) +
   scale_y_continuous(labels = scales::label_dollar()) +
-  theme(axis.title = element_text(size = 8),
-        axis.text.y = element_text(size = 5),
-        axis.text.x = element_text(size = 7),
+  theme(axis.title = element_text(size = 12),
+        axis.text.y = element_text(size = 10),
+        axis.text.x = element_text(size = 10),
         legend.position = 'none',
         axis.ticks.x = element_blank(),
         axis.ticks.y = element_blank(),
@@ -174,7 +174,7 @@ i <- ggplot(br) +
         panel.grid.minor.x = element_line(color = gridline.color),
         panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank(),
-        plot.caption = element_text(size=5)) +
+        plot.caption = element_text(size=8)) +
   labs(x = 'Person Broad Race',
        y = 'Median Worker Earnings',
        title = plot_title_br,
@@ -187,7 +187,7 @@ plot_i <- ggiraph(ggobj = i)
 
 plot_i
 
-htmltools::save_html(plot_i, "median-worker-annual-earn_broad.html")
+htmltools::save_html(plot_i, "C:\\Users\\SChildress\\Documents\\GitHub\\blog\\psrc.github.io\\_includes\\median-worker-annual-earn_broad.html")
 ```
 
 # Educational Attainment
@@ -219,14 +219,14 @@ e <- ggplot(edu_l) +
                            race, 
                            fill = education,
                            tooltip = paste0(education, ": ", scales::label_percent(suffix = " %")(share)))) +
-  scale_y_discrete(labels = str_wrap(aapi_edu_labels, width = 20)) +
+  scale_y_discrete(labels = str_wrap(aapi_edu_labels)) +
   scale_fill_manual(values = pals::brewer.set2(4)) +
   scale_x_continuous(labels = scales::label_percent()) +
-  theme(axis.title = element_text(size = 8),
-        axis.text.y = element_text(size = 7),
-        axis.text.x = element_text(size = 8),
+  theme(axis.title = element_text(size = 14),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size = 12),
         legend.position = 'bottom',
-        legend.text = element_text(size = 5),
+        legend.text = element_text(size = 10),
         axis.ticks.x = element_blank(),
         axis.ticks.y = element_blank(),
         panel.background = element_rect(fill = background.color),
@@ -239,12 +239,13 @@ e <- ggplot(edu_l) +
        y = NULL,
        fill = NULL,
        title = plot_title_edu,
-       caption = plot_source_edu)
+       caption = plot_source_edu)+
+      guides(fill=guide_legend(nrow=4,byrow=TRUE))
 
 plot_e <- ggiraph(ggobj = e)
 plot_e
 
-htmltools::save_html(plot_e, "aapi-education.html")
+htmltools::save_html(plot_e, "C:\\Users\\SChildress\\Documents\\GitHub\\blog\\psrc.github.io\\_includes\\aapi-education.html")
 ```
 
 ```{r education plot2}
@@ -257,11 +258,11 @@ e <- ggplot(edu_l) +
   scale_x_discrete(labels = str_wrap(aapi_edu_labels, width = 20)) +
   scale_fill_manual(values = pals::brewer.set2(4)) +
   scale_y_continuous(labels = scales::label_percent()) +
-  theme(axis.title = element_text(size = 8),
-        axis.text.y = element_text(size = 7),
-        axis.text.x = element_text(size = 8),
+  theme(axis.title = element_text(size = 12),
+        axis.text.y = element_text(size = 10),
+        axis.text.x = element_text(size = 10),
         legend.position = 'bottom',
-        legend.text = element_text(size = 5),
+        legend.text = element_text(size = 8),
         axis.ticks.x = element_blank(),
         axis.ticks.y = element_blank(),
         panel.background = element_rect(fill = background.color),

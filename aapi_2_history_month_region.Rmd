@@ -247,6 +247,15 @@ library(stringr)
 Asian_df_max_tract<-Asian_df_tract%>% select('GEOID', 'label', 'estimate', 'moe')%>% filter(label!='Estimate!!Total:') %>% group_by(GEOID)%>%top_n(1, estimate)%>%mutate(top_group=str_replace_all(label, 'Estimate!!Total:!!', replacement=''))%>%
              filter(estimate>=200)%>%
           mutate('GEOID'=as.character(GEOID))%>%select(GEOID, top_group, estimate)
+gdb.nm <- paste0("MSSQL:server=",
+"AWS-PROD-SQL\\Sockeye",
+";database=",
+"ElmerGeo",
+";trusted_connection=yes")
+spn <-  2285
+wgs84=4326
+tract_layer_name <- "dbo.tract2010_nowater"
+tract.lyr <- st_read(gdb.nm, tract_layer_name, crs = spn)
 ```
 
 ```{r}
@@ -330,6 +339,8 @@ create_tract_map_categorical <- function(tbl, tract.lyr,
 library(htmltools)
 m<-create_tract_map_categorical(tbl=Asian_df_max_tract, tract.lyr=tract.lyr,  
                  legend.title='Top Asian Alone group', legend.subtitle=' by Census Tract')
+
+htmltools::save_html(m, "C:\\Users\\SChildress\\Documents\\GitHub\\blog\\psrc.github.io\\_includes\\ AsianAloneBachelors.html")
 ```
 
 
