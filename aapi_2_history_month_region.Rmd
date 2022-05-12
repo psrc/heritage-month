@@ -459,6 +459,8 @@ create_tract_map_share_edu <- function(tract.tbl, tract.lyr,
 
 m2<-create_tract_map_share_edu(tract.tbl=edu, tract.lyr=tract.lyr,  
                  legend.title='Share of Asian Alone Adults', legend.subtitle=' with Bachelor\`s degree or higher')
+htmltools::save_html(m2, "C:\\Users\\SChildress\\Documents\\GitHub\\blog\\psrc.github.io\\_includes\\ asian_groups_by_census_tract.html")
+ 
 ```
 
 
