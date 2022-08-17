@@ -1,0 +1,207 @@
+---
+title: "hispanic-latinx-2"
+author: "suzanne"
+date: "2022-08-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Notes for Hispanic Heritage Month
+
+auto onwership?
+
+```{r load_libraries}
+library(devtools)
+library(sf)
+library(dplyr)
+library(psrccensus)
+library(psrcplot)
+library(tidycensus)
+library(ggplot2)
+library(stringr)
+library(tidyr)
+library(forcats)
+
+Sys.setenv("CENSUS_API_KEY"='c4780eb03010d73b7ae4e6894c1592375e545a21')
+Sys.getenv("CENSUS_API_KEY")
+install_psrc_fonts()
+
+```
+
+What can we find?
+```{r}
+var_list<- load_variables(2020, "acs5", cache = TRUE)
+```
+
+
+### Educational Attainment
+
+
+```{r}
+
+
+
+
+Hispanic_df <- get_acs_recs(geography = 'county',
+             table.names = c('C15002I'),
+             years=c(2020),
+             acs.type = 'acs5')%>%filter(name=='Region')%>%mutate(Ethnicity='Hispanic/Latinx')
+
+
+
+white_df <- get_acs_recs(geography = 'county',
+             table.names = c('C15002H'),
+             years=c(2020),
+             acs.type = 'acs5')%>%filter(name=='Region')%>%mutate(Ethnicity='Non-Hispanic/Latinx White')
+
+
+white_Hispanic_df<-rbind(Hispanic_df, white_df)%>%
+  separate(label, c("Type", "Value","Gender","Variable"), "!!") %>%
+  mutate(Gender=replace_na(Gender,"Total"), Gender=gsub(":","",Gender),Variable=replace_na(Variable,"Total")) %>%
+  filter(Variable!="Total")%>%select(Variable, moe, estimate, Ethnicity)%>%group_by(Variable,Ethnicity)%>%mutate(sum_est = sum(estimate), moe_grp=moe_sum(moe,sum(estimate))) %>%select(sum_est, moe_grp, Ethnicity,Variable)%>%filter(row_number()==1)%>%group_by(Ethnicity)%>%mutate(sum_Eth=sum(sum_est), moe_Eth=moe_sum(moe_grp, sum(sum_est)))%>%mutate(share=sum_est/sum_Eth, moe_share=moe_prop(sum_est, sum_Eth, moe_grp, moe_Eth))%>%mutate(Variable=fct_relevel(Variable, 'Less than high school diploma', 'High school graduate (includes equivalency)', 'Some college or associate\'s degree', 'Bachelor\'s degree or higher'))
+
+p<-create_bar_chart(t=white_Hispanic_df, w.x='Variable', w.y='share', f='Ethnicity', w.moe='moe_share', est.type='percent', w.color = 'DkPrLtPr')+
+  xlab(as.character('Highest Education Attained')) + ylab('Share of Regional Adults')+theme(axis.text.x = element_text(size=14,color="#4C4C4C"))+ theme(axis.title.x = element_text(size=20,color="#4C4C4C"))+theme(axis.title.y = element_text(size=20,color="#4C4C4C"))+coord_flip()
+  
+  
+
+
+
+
+write.csv(white_Hispanic_df,'C:/GitHub/heritage-month/hispanic_heritage2/edu_attain.csv')
+
+
+
+print(p)
+
+```
+
+
+## Homeownership
+What other dat can we get
+
+This is consistent across counties; get it only as regional
+
+```{r}
+
+
+homeownership_Hispanic<-format_estimates(get_acs_recs(geography = 'county',
+             table.names = c('B25003I'),
+             years=c(2020),
+             acs.type = 'acs5'), type='share')%>%mutate(Ethnicity='Hispanic/Latinx')%>%filter(label=='Estimate!!Total:!!Owner occupied')
+
+homeownership_white<-format_estimates(get_acs_recs(geography = 'county',
+             table.names = c('B25003H'),
+             years=c(2020),
+             acs.type = 'acs5'), type='share')%>%mutate(Ethnicity='Non-Hispanic/Latinx White')%>%filter(label=='Estimate!!Total:!!Owner occupied')
+
+white_Hispanic_df<-rbind(homeownership_Hispanic, homeownership_white)%>%filter(label!='Estimate!!Total:')
+
+write.csv(white_Hispanic_df,'C:/GitHub/heritage-month/hispanic_heritage2/home_ownership.csv')
+#this is insane, fix it
+# white_Hispanic_df<-rbind(homeownership_Hispanic, homeownership_white)
+                                                                                                                                                                                                                                                                                                                                                       
+                                                                                                                                                                                                                                                                                                                                                                                                                            
+#ovearl
+
+
+p<-create_bar_chart(t=white_Hispanic_df, w.x='label', w.y='Region_share', f='Ethnicity', w.moe='Region_share_moe', est.type='percent', w.color = 'DkPrLtPr')+
+  xlab(as.character('Householders Owning Homes')) + ylab('Share of Regional Households')+ theme(axis.title.x = element_text(size=20,color="#4C4C4C"))+theme(axis.title.y = element_text(size=20,color="#4C4C4C"))
+  
+#by county
+county_level<-white_Hispanic_df%>%pivot_longer(col= c('King_share', 'Kitsap_share', 'Pierce_share', 'Snohomish_share'), names_to='County', values_to='share', values_drop_na = TRUE)%>%pivot_longer(col= c('King_share_moe', 'Kitsap_share_moe', 'Pierce_share_moe', 'Snohomish_share_moe'), names_to='County2', values_to='moe', values_drop_na = TRUE)%>%filter((County=='King_share'& County2=='King_share_moe')|                                  (County=='Pierce_share'& County2=='Pierce_share_moe')|(County=='Snohomish_share'& County2=='Snohomish_share_moe')|(County=='Kitsap_share'& County2=='Kitsap_share_moe'))%>%mutate(County_Name=sub("_.*","", County))
+
+
+
+p2<-create_facet_bar_chart(t=county_level, w.x='label', w.y='share', f='Ethnicity', w.moe='moe_share', est.type='percent', g='County_Name', w.color = 'DkPrLtPr')+
+  xlab(as.character('Householders Owning Homes')) + ylab('Share of Regional Households')+ theme(axis.title.x = element_text(size=20,color="#4C4C4C"))+theme(axis.title.y = element_text(size=20,color="#4C4C4C"))
+  
+p
+```
+
+
+
+
+
+### Means of Transportation to Work
+
+```{r}
+
+white_df <- format_estimates(get_acs_recs(geography = 'county',
+             table.names = c('B08105H'),
+             years=c(2020),
+             acs.type = 'acs5')%>%filter(name=='Region'), type='share')%>%mutate(Ethnicity='Non-Hispanic/Latinx White')
+
+
+
+Hispanic_df <- format_estimates(get_acs_recs(geography = 'county',
+             table.names = c('B08105I'),
+             years=c(2020),
+             acs.type = 'acs5')%>%filter(name=='Region'), type='share')%>%mutate(Ethnicity='Hispanic/Latinx')
+
+
+white_Hispanic_df<-rbind(Hispanic_df, white_df)%>%filter(label!='Estimate!!Total:' & label!='Estimate!!Total:!!Female:' & label!= 'Estimate!!Total:!!Male:')%>%filter(label!='Estimate!!Total:!!Car, truck, or van - drove alone')
+
+
+
+p<-create_bar_chart(t=white_Hispanic_df, w.x='label', w.y='Region_share', f='Ethnicity', w.moe='Region_share_moe', est.type='percent', w.color = 'psrc_light')+
+  xlab(as.character('Means of Transport to Work')) + ylab('Share of Commuters')+theme(axis.text.x = element_text(size=14,color="#4C4C4C"))+ theme(axis.title.x = element_text(size=20,color="#4C4C4C"))+theme(axis.title.y = element_text(size=20,color="#4C4C4C"))+coord_flip()
+  
+  
+
+
+print(p)
+```
+
+
+
+
+
+```{r}
+white_Hispanic_df<-merge(Hispanic_df, white_df, by='label')%>% 
+  select(estimate.x, moe.x, label, estimate.y, moe.y)
+
+
+
+
+write.table(white_Hispanic_df,"clipboard", sep='\t', row.names=FALSE )
+
+
+white_Hispanic_df
+```
+
+
+# Job sector
+add male and female together
+report regional
+```{r}
+Hispanic_df <-format_estimates( get_acs_recs(geography = 'county',
+             table.names = c('C24010I'),
+             years=c(2020),
+             acs.type = 'acs5')%>%filter(name=='Region'), type='share')%>%mutate(Ethnicity='Hispanic/Latinx')
+
+
+white_df <- format_estimates(get_acs_recs(geography = 'county',
+             table.names = c('C24010H'),
+             years=c(2020),
+             acs.type = 'acs5')%>%filter(name=='Region'), type='share')%>%mutate(Ethnicity='Hispanic/Latinx')
+
+
+
+
+white_Hispanic_df<-rbind(Hispanic_df, white_df)%>%filter(label!='Estimate!!Total:' & label!='Estimate!!Total:!!Female:' & label!= 'Estimate!!Total:!!Male:')
+
+
+
+p<-create_bar_chart(t=white_Hispanic_df, w.x='label', w.y='Region_share', f='Ethnicity', w.moe='Region_share_moe', est.type='percent', w.color = 'psrc_light')+
+  xlab(as.character('Job Sector')) + ylab('Share of Workers')+theme(axis.text.x = element_text(size=14,color="#4C4C4C"))+ theme(axis.title.x = element_text(size=20,color="#4C4C4C"))+theme(axis.title.y = element_text(size=20,color="#4C4C4C"))+coord_flip()
+  
+p
+```
+
+
+
+
