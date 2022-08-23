@@ -230,21 +230,22 @@ p<-create_bar_chart(t=race_hhsize, w.x='COUNTY', w.y='NPF_mean', f='HRACE', w.mo
 
 ggsave('C:/GitHub/heritage-month/hispanic_heritage2/hhsize.jpeg', p, device='jpeg', width=11, height=7, dpi=72)
   
-write.csv(white_Hispanic_df,'C:/GitHub/heritage-month/hispanic_heritage2/hhsize.csv')
+write.csv(race_hhsize,'C:/GitHub/heritage-month/hispanic_heritage2/hhsize.csv')
 
 
 ```
 
 ```{r}
-race_rent_obj<-get_psrc_pums(span=5, dyear=2020, level="h", vars=c("HRACE","GRPIP"))%>% mutate(counts_cut_number   = cut_interval(GRPIP, n = 4))
+race_rent_obj<-get_psrc_pums(span=5, dyear=2020, level="h", vars=c("HRACE","GRPIP")) %>% mutate(BIN_GRPIP=cut(GRPIP,c(0,25,50,75,100)))
 
 
 race_rent<-psrc_pums_mean(race_rent_obj,stat_var="GRPIP", group_var = "HRACE")%>%filter(HRACE=='Hispanic or Latino' | HRACE=='White alone')
 
-race_rent_count<-psrc_pums_count(race_rent_obj, group_var=c('HRACE', 'counts_cut_number'))%>%drop_na(counts_cut_number)%>%filter(counts_cut_number!='Total')
 
 
-race_rent_count$counts_cut_number_f=factor(race_rent_count$counts_cut_number, levels=c('[1,26]', '(26,51]', '(51,76]','(76,101]'))
+race_rent_count<-psrc_pums_count(race_rent_obj, group_var=c('HRACE', 'BIN_GRPIP'))%>%drop_na(BIN_GRPIP)%>%filter(BIN_GRPIP!='Total')
+
+
 
 p<-create_bar_chart(t=race_rent, w.x='COUNTY', w.y= 'GRPIP_mean', f='HRACE', w.moe='GRPIP_mean_moe', est.type='percent', w.color = 'PrOr', )+coord_flip()
 
@@ -253,7 +254,7 @@ ggsave('C:/GitHub/heritage-month/hispanic_heritage2/rent.jpeg', p, device='jpeg'
 write.csv(white_Hispanic_df,'C:/GitHub/heritage-month/hispanic_heritage2/rent.csv')
 
 
-p<-create_column_chart(t=race_rent_count, w.x='counts_cut_number_f', w.y= 'count', f='HRACE', w.moe='count_moe', est.type='number', w.color = 'psrc_dark' )
+p<-create_column_chart(t=race_rent_count, w.x='BIN_GRPIP', w.y= 'share', f='HRACE', w.moe='share_moe', est.type='number', w.color = 'psrc_dark' )
 
 ggsave('C:/GitHub/heritage-month/hispanic_heritage2/rent.jpeg', p, device='jpeg', width=25, height=7, dpi=72)
   
@@ -272,7 +273,7 @@ p<-create_bar_chart(t=race_housecost, w.x='COUNTY', w.y= 'OCPIP_mean', f='HRACE'
 
 ggsave('C:/GitHub/heritage-month/hispanic_heritage2/housecost.jpeg', p, device='jpeg', width=11, height=7, dpi=72)
   
-write.csv(white_Hispanic_df,'C:/GitHub/heritage-month/hispanic_heritage2/housecost.csv')
+write.csv(race_hhsize,'C:/GitHub/heritage-month/hispanic_heritage2/housecost.csv')
 
 
 ```
