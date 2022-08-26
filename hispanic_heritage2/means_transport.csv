@@ -1,14 +1,14 @@
 "","variable","label","concept","acs_type","year","Region_geography","Region_share","Region_share_moe","Ethnicity"
 "1","B08105I_003","Car, truck, or van -
-carpooled","MEANS OF TRANSPORTATION TO WORK (HISPANIC OR LATINO)","acs5",2020,"tract",0.147829758403825,0.00875144473535879,"Hispanic/Latinx"
+carpooled","MEANS OF TRANSPORTATION TO WORK (HISPANIC OR LATINO)","acs5",2020,"tract",0.147829758403825,0.00875144473535879,"All Hispanic/Latinx"
 "2","B08105I_004","Public
 transportation
-(excluding taxicab)","MEANS OF TRANSPORTATION TO WORK (HISPANIC OR LATINO)","acs5",2020,"tract",0.087894661907731,0.0054096991123483,"Hispanic/Latinx"
-"3","B08105I_005","Walked","MEANS OF TRANSPORTATION TO WORK (HISPANIC OR LATINO)","acs5",2020,"tract",0.0438614148178332,0.00500316181264982,"Hispanic/Latinx"
+(excluding taxicab)","MEANS OF TRANSPORTATION TO WORK (HISPANIC OR LATINO)","acs5",2020,"tract",0.087894661907731,0.0054096991123483,"All Hispanic/Latinx"
+"3","B08105I_005","Walked","MEANS OF TRANSPORTATION TO WORK (HISPANIC OR LATINO)","acs5",2020,"tract",0.0438614148178332,0.00500316181264982,"All Hispanic/Latinx"
 "4","B08105I_006","Taxicab, motorcycle,
 bicycle, or other
-means","MEANS OF TRANSPORTATION TO WORK (HISPANIC OR LATINO)","acs5",2020,"tract",0.0170212139213597,0.00234039536672359,"Hispanic/Latinx"
-"5","B08105I_007","Worked from home","MEANS OF TRANSPORTATION TO WORK (HISPANIC OR LATINO)","acs5",2020,"tract",0.0673435221688178,0.00522982787530863,"Hispanic/Latinx"
+means","MEANS OF TRANSPORTATION TO WORK (HISPANIC OR LATINO)","acs5",2020,"tract",0.0170212139213597,0.00234039536672359,"All Hispanic/Latinx"
+"5","B08105I_007","Worked from home","MEANS OF TRANSPORTATION TO WORK (HISPANIC OR LATINO)","acs5",2020,"tract",0.0673435221688178,0.00522982787530863,"All Hispanic/Latinx"
 "6","B08105H_003","Car, truck, or van -
 carpooled","MEANS OF TRANSPORTATION TO WORK (WHITE ALONE, NOT HISPANIC OR LATINO)","acs5",2020,"tract",0.0776326473530465,0.00201089818011151,"Non-Hispanic/Latinx White"
 "7","B08105H_004","Public
@@ -19,3 +19,38 @@ transportation
 bicycle, or other
 means","MEANS OF TRANSPORTATION TO WORK (WHITE ALONE, NOT HISPANIC OR LATINO)","acs5",2020,"tract",0.0240471267172697,0.00104312142086289,"Non-Hispanic/Latinx White"
 "10","B08105H_007","Worked from home","MEANS OF TRANSPORTATION TO WORK (WHITE ALONE, NOT HISPANIC OR LATINO)","acs5",2020,"tract",0.10972116977691,0.00224680036721431,"Non-Hispanic/Latinx White"
+"11","B08105B_003","Car, truck, or van -
+carpooled","MEANS OF TRANSPORTATION TO WORK (BLACK OR AFRICAN AMERICAN ALONE)","acs5",2020,"tract",0.106782070788955,0.00853022905170877,"Black or African
+American, includes
+Hispanic/Latinx"
+"12","B08105B_004","Public
+transportation
+(excluding taxicab)","MEANS OF TRANSPORTATION TO WORK (BLACK OR AFRICAN AMERICAN ALONE)","acs5",2020,"tract",0.131999700680951,0.00958908659704939,"Black or African
+American, includes
+Hispanic/Latinx"
+"13","B08105B_005","Walked","MEANS OF TRANSPORTATION TO WORK (BLACK OR AFRICAN AMERICAN ALONE)","acs5",2020,"tract",0.0454299801285409,0.0059296561625886,"Black or African
+American, includes
+Hispanic/Latinx"
+"14","B08105B_006","Taxicab, motorcycle,
+bicycle, or other
+means","MEANS OF TRANSPORTATION TO WORK (BLACK OR AFRICAN AMERICAN ALONE)","acs5",2020,"tract",0.0144504585401545,0.0030080648208621,"Black or African
+American, includes
+Hispanic/Latinx"
+"15","B08105B_007","Worked from home","MEANS OF TRANSPORTATION TO WORK (BLACK OR AFRICAN AMERICAN ALONE)","acs5",2020,"tract",0.046801859103872,0.00668522650296702,"Black or African
+American, includes
+Hispanic/Latinx"
+"16","B08105D_003","Car, truck, or van -
+carpooled","MEANS OF TRANSPORTATION TO WORK (ASIAN ALONE)","acs5",2020,"tract",0.136094387416736,0.00499957374694853,"Asian, includes Hispanic/
+Latinx"
+"17","B08105D_004","Public
+transportation
+(excluding taxicab)","MEANS OF TRANSPORTATION TO WORK (ASIAN ALONE)","acs5",2020,"tract",0.12236783788243,0.0049507375140079,"Asian, includes Hispanic/
+Latinx"
+"18","B08105D_005","Walked","MEANS OF TRANSPORTATION TO WORK (ASIAN ALONE)","acs5",2020,"tract",0.0489277245243587,0.00371878284668565,"Asian, includes Hispanic/
+Latinx"
+"19","B08105D_006","Taxicab, motorcycle,
+bicycle, or other
+means","MEANS OF TRANSPORTATION TO WORK (ASIAN ALONE)","acs5",2020,"tract",0.0179613016767548,0.00238079738013868,"Asian, includes Hispanic/
+Latinx"
+"20","B08105D_007","Worked from home","MEANS OF TRANSPORTATION TO WORK (ASIAN ALONE)","acs5",2020,"tract",0.100873801798071,0.00536389524746661,"Asian, includes Hispanic/
+Latinx"
